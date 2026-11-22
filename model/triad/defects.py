@@ -36,6 +36,11 @@ MIXES: dict[str, dict[str, float]] = {
     "cells": {"cell": 1.0},
     "mixed": {"cell": 0.70, "pair_h": 0.07, "pair_v": 0.07, "cluster": 0.06, "row": 0.05, "col": 0.05},
     "lines": {"cell": 0.50, "row": 0.25, "col": 0.25},
+    # Mixes used in published BIRA evaluations, as reported by a secondary literature search
+    # (docs/03_stronger_contribution.md); to be checked against the original papers before the paper is written.
+    "kang_dl": {"cell": 0.804, "row": 0.097, "col": 0.097},  # Yonsei group, low line-fault density
+    "kang_dh": {"cell": 0.448, "row": 0.278, "col": 0.274},  # Yonsei group, high line-fault density
+    "date06": {"cell": 0.40, "pair_h": 0.20, "pair_v": 0.20, "cluster": 0.20},  # Tseng/Li, DATE 2006
 }
 
 

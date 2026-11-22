@@ -137,3 +137,27 @@ Thay đổi trong các pha sau:
 - Pha 4: viết thêm RTL bộ tham lam (cùng giao diện) để so PPA với bộ chính xác.
 - Pha 7: thêm thí nghiệm "chính xác so với tham lam" (diện tích, số chu kỳ phân tích, fmax).
 - Pha 1 còn nợ: đọc toàn văn Lv 2021, Lu 2016, Han 2021 để so cấu trúc tìm kiếm và cài lại EBISR đúng bản gốc.
+
+## 9. Phương án A được chọn (2026-11-22): đóng góp ba trụ
+
+Căn cứ: `docs/03_stronger_contribution.md`. Phát biểu đóng góp thay cho mục 8:
+
+1. **Lý thuyết.** Bài toán sửa "từ dự phòng + cột dự phòng + ECC có ngân sách K" như một biến thể mới của
+   Constrained Bipartite Vertex Cover: NP-đầy đủ với mọi K cố định; ngay cả khi chỉ có cột dự phòng
+   (R = 0) cũng NP-đầy đủ nếu ECC không giới hạn; nhân chặt `R + S(R+K) + K`; giải trong `O(3^(R+S))`
+   và đa thức khi S cố định. Chứng minh: `docs/04_theory.md`.
+2. **Kiến trúc.** Lái cột theo phân vùng địa chỉ (P phân vùng) làm tài nguyên thứ tư ở wrapper, phân bổ
+   chính xác cùng từ dự phòng và ngân sách K (tách theo phân vùng + quy hoạch động). Kèm công cụ chọn
+   (P, R, S, K) dưới ràng buộc diện tích theo hỗn hợp lỗi. Trích Touba DFTS 2009 là công trình gần nhất.
+3. **Đánh giá.** Giao thức theo tài liệu (10 000 mẫu, nhiều hỗn hợp lỗi đã công bố, repair rate và
+   normalized repair rate, yield Poisson và nhị thức âm), so trực tiếp với autoMBIST trên cùng macro,
+   RTL-to-GDS trên sky130, đường cong yield – số từ tiêu ECC – diện tích.
+
+Không tuyên bố: "first joint ECC + redundancy analysis", "wrapper-level repair là mới", "phân vùng luôn
+tốt hơn", lợi ích công suất do hạ điện áp.
+
+Thứ tự làm việc:
+- A2 mô hình vàng có phân vùng + test vét cạn -> A3 lý thuyết -> A4 giao thức đánh giá.
+- Pha 3 đặc tả kiến trúc: BIRA hai lượt theo từng phân vùng (bộ lưu lỗi chỉ cỡ một phân vùng), bảng lái
+  cột P x S, cấu hình P = 1 là trường hợp cơ sở.
+- Pha 4-8 như cũ, thêm: bảng phân vùng (tham số P), bộ tham lam để so PPA, baseline autoMBIST.

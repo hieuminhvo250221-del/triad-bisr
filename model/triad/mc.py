@@ -19,6 +19,7 @@ from pathlib import Path
 from .baselines import ALGORITHMS
 from .core import Policy, Resources
 from .defects import MIXES, Geometry, sample
+from .partitioned import solve_partitioned
 from .solver import solve
 
 PRESETS = {
@@ -26,13 +27,15 @@ PRESETS = {
     "macro": dict(geom=(256, 30, 2), defects=range(1, 25), rs=[(2, 2), (4, 2), (2, 1)], ks=[0, 2, 4, 8, 16, 256]),
     # a larger embedded SRAM: 4096 x 39 (32 data + 7 check), mux 8
     "large": dict(geom=(4096, 39, 8), defects=range(2, 41, 2), rs=[(8, 2), (8, 4)], ks=[0, 8, 32, 4096]),
+    # evaluation protocol for the paper: project memory, plain and address-partitioned steering
+    "protocol": dict(geom=(256, 30, 2), defects=range(1, 31), rs=[(2, 2), (4, 2)], ks=[0, 2, 8], parts=(4, 16)),
 }
 FIELDS = ["words", "bits", "wpr", "mix", "defects", "trials", "R", "S", "K", "algo", "repaired", "sum_ecc",
           "sum_spares", "sum_ecc_triad", "sum_spares_triad", "max_nodes", "sum_nodes", "max_kernel_words"]
 
 
 def run_task(task: tuple) -> list[dict]:
-    geom_t, mix_name, n_defects, trials, seed, settings = task
+    geom_t, mix_name, n_defects, trials, seed, settings, part_list = task
     geom = Geometry(*geom_t)
     rng = random.Random(f"{seed}/{geom_t}/{mix_name}/{n_defects}")
     acc: dict[tuple[Resources, str], list[int]] = {}
@@ -65,6 +68,13 @@ def run_task(task: tuple) -> list[dict]:
                     a[2] += sol.spares
                     a[3] += triad.ecc_words
                     a[4] += triad.spares
+            for parts in part_list:  # address-partitioned steering (dominates the plain scheme)
+                psol = solve_partitioned(faults, res, geom.words, parts)
+                a = acc.setdefault((res, f"triad_p{parts}"), [0, 0, 0, 0, 0])
+                if psol is not None:
+                    a[0] += 1
+                    a[1] += psol.ecc_words
+                    a[2] += psol.spares
     rows = []
     for (res, name), a in acc.items():
         s = search[res]
@@ -85,7 +95,8 @@ def main() -> None:
 
     p = PRESETS[args.preset]
     settings = [Resources(r, s, k) for r, s in p["rs"] for k in p["ks"]]
-    tasks = [(p["geom"], mix, n, args.trials, args.seed, settings) for mix in args.mixes for n in p["defects"]]
+    tasks = [(p["geom"], mix, n, args.trials, args.seed, settings, tuple(p.get("parts", ())))
+             for mix in args.mixes for n in p["defects"]]
     tasks.sort(key=lambda t: -t[2])  # longest first
     t0 = time.time()
     args.out.parent.mkdir(parents=True, exist_ok=True)
