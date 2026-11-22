@@ -3,6 +3,7 @@
 // Same ports and edge behaviour as the PDK model: inputs are sampled on the rising edge, the access
 // happens on the falling edge, dout is valid from then until shortly after the next rising edge.
 // Fault injection: bit b of word a reads 0 if sa0[a][b] = 1 and reads 1 if sa1[a][b] = 1.
+/* verilator lint_off DECLFILENAME */
 module sky130_sram_1kbyte_1rw1r_32x256_8 (
 `ifdef USE_POWER_PINS
     inout             vccd1,
@@ -41,6 +42,9 @@ module sky130_sram_1kbyte_1rw1r_32x256_8 (
 
     wire [31:0] wbits = {{8{wmask0_r[3]}}, {8{wmask0_r[2]}}, {8{wmask0_r[1]}}, {8{wmask0_r[0]}}};
 
+    // dout0/dout1 are intentionally driven from both edges (posedge invalidates, negedge drives),
+    // mirroring the PDK model's structure; simulation-only model, not for synthesis.
+    /* verilator lint_off MULTIDRIVENPROC */
     always @(posedge clk0) begin
         csb0_r   <= csb0;
         web0_r   <= web0;
@@ -66,4 +70,6 @@ module sky130_sram_1kbyte_1rw1r_32x256_8 (
     always @(negedge clk1)
         if (!csb1_r)
             dout1 <= #3 (mem[addr1_r] & ~sa0[addr1_r]) | sa1[addr1_r];
+    /* verilator lint_on MULTIDRIVENPROC */
 endmodule
+/* verilator lint_on DECLFILENAME */

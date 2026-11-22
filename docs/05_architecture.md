@@ -24,7 +24,7 @@ Tên module và tín hiệu bằng tiếng Anh để khớp RTL. Cấu hình m�
 - Tài nguyên sửa: R từ dự phòng bằng flip-flop (R = 2); S = 2 cột dự phòng, **lái theo phân vùng địa
   chỉ**: P = 2^PBITS phân vùng theo các bit địa chỉ cao (PBITS = 4, P = 16, mỗi phân vùng WIN = 16 từ);
   ECC với ngân sách K lập trình được (`cfg_k`, 0..31).
-- Sửa mềm: chạy lại sau mỗi lần cấp nguồn. Chưa có xuất/nhập chữ ký sửa (để sau).
+- Sửa mềm: chạy lại sau mỗi lần cấp nguồn, hoặc nạp lại chữ ký sửa đã lưu (mục 7).
 
 ## 2. Thuật toán cấp phát trong phần cứng
 
@@ -115,3 +115,28 @@ Tham số: `PBITS` (2..4), `R` (1..4). S = 2 và kích thước macro cố đị
 bằng `solve_partitioned` khi cột dự phòng không lỗi (cùng E và cùng kết luận), và bằng vét cạn khi cột
 dự phòng có lỗi. RTL được so với mô hình này theo: sửa được/không, E, số từ dự phòng; lời giải của RTL
 còn được kiểm bằng lượt 3 và bộ kiểm độc lập.
+
+## 7. Chữ ký sửa (xuất/nhập trạng thái sửa)
+
+Sky130 không có eFuse, nên trạng thái sửa được xuất ra ngoài sau BIST và nạp lại sau reset mà không
+cần chạy lại BIST. `triad_datapath` giữ một chuỗi dịch serial `S` dài L = 12\*P + 9\*R bit trên chính
+các thanh ghi trạng thái sửa:
+
+| Vùng bit | Nội dung |
+|---|---|
+| `S[6*p +: 6]` | mục sel0 của phân vùng p (`{1, c}` = lái cột c; 0 = không lái) |
+| `S[6*P + 6*p +: 6]` | mục sel1 của phân vùng p |
+| `S[12*P + i]` | `sw_valid[i]` |
+| `S[12*P + R + 8*i +: 8]` | địa chỉ từ dự phòng i |
+
+tức `S = {sw_addr, sw_valid, sel1_flat, sel0_flat}`, LSB ra trước trong ý nghĩa vị trí. Khi
+`sig_shift` = 1 (và không `cfg_clear`): `S <= {S[L-2:0], sig_in}`; `sig_out = S[L-1]` tổ hợp.
+`triad_bisr_top` chặn dịch khi đang chạy BIST (`sig_shift & ~bist_busy`).
+
+- **Xuất**: L lần dịch với `sig_in` nối từ `sig_out` — chuỗi quay đủ một vòng nên trạng thái không
+  đổi; dãy bit quan sát được ở `sig_out` là chữ ký, MSB trước.
+- **Nhập**: sau reset, L lần dịch nạp lại các bit đã lưu, MSB trước.
+- Dữ liệu của từ dự phòng (`sw_data`) **không** nằm trong chữ ký: nội dung bộ nhớ mất khi reset nên
+  không cần giữ — chỉ cấu hình sửa được khôi phục.
+
+Mô hình vàng có `signature()`/`from_signature()` trong `hwmodel.py` theo đúng bố cục này.

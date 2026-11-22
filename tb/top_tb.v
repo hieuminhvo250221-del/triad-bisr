@@ -19,6 +19,9 @@ module top_tb #(parameter PBITS = 4, parameter R = 2, parameter NBG = 1) (
     output wire        rvalid,
     output wire        rd_ce,
     output wire        rd_ue,
+    input  wire        sig_shift,
+    input  wire        sig_in,
+    output wire        sig_out,
     output reg         clk
 );
     initial clk = 1'b0;
@@ -29,5 +32,6 @@ module top_tb #(parameter PBITS = 4, parameter R = 2, parameter NBG = 1) (
         .bist_busy(bist_busy), .bist_done(bist_done), .bist_pass(bist_pass),
         .stat_fail_code(stat_fail_code), .stat_ecc_words(stat_ecc_words), .stat_spare_words(stat_spare_words),
         .req_en(req_en), .req_we(req_we), .req_addr(req_addr), .req_wdata(req_wdata),
-        .rdata(rdata), .rvalid(rvalid), .rd_ce(rd_ce), .rd_ue(rd_ue));
+        .rdata(rdata), .rvalid(rvalid), .rd_ce(rd_ce), .rd_ue(rd_ue),
+        .sig_shift(sig_shift), .sig_in(sig_in), .sig_out(sig_out));
 endmodule

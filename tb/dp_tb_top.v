@@ -20,7 +20,10 @@ module dp_tb_top #(parameter PBITS = 4, parameter R = 2) (
     input  wire [5:0]       steer_sel1,
     input  wire             spare_we,
     input  wire [7:0]       spare_addr,
-    output wire [2:0]       spare_count
+    output wire [2:0]       spare_count,
+    input  wire             sig_shift,
+    input  wire             sig_in,
+    output wire             sig_out
 );
     wire        m_csb, m_web;
     wire [7:0]  m_addr;
@@ -32,6 +35,7 @@ module dp_tb_top #(parameter PBITS = 4, parameter R = 2) (
         .cfg_clear(cfg_clear), .steer_we(steer_we), .steer_part(steer_part),
         .steer_sel0(steer_sel0), .steer_sel1(steer_sel1),
         .spare_we(spare_we), .spare_addr(spare_addr), .spare_count(spare_count),
+        .sig_shift(sig_shift), .sig_in(sig_in), .sig_out(sig_out),
         .m_csb(m_csb), .m_web(m_web), .m_addr(m_addr), .m_din(m_din), .m_dout(m_dout));
 
     sky130_sram_1kbyte_1rw1r_32x256_8 u_ram (

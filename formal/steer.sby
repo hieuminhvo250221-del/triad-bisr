@@ -1,0 +1,22 @@
+[tasks]
+steer
+
+[options]
+steer: mode bmc
+steer: depth 11
+steer: append 0
+
+[engines]
+steer: smtbmc boolector
+
+[script]
+steer: read -formal steer_formal.v
+steer: read -formal ecc30_24.v
+steer: read -formal triad_datapath.v
+steer: prep -top steer_formal
+steer: flatten
+
+[files]
+steer_formal.v
+../rtl/ecc30_24.v
+../rtl/triad_datapath.v

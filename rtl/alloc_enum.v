@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 // Classification of one word under a steering option: o = {valid, column} per spare column.
 // The fault vector of the codeword takes the spare column's own fault bit at the steered position.
+// Helper `word_class` shares this file with `alloc_enum`.
+/* verilator lint_off DECLFILENAME */
 module word_class (
     input  wire [31:0] row,
     input  wire [5:0]  o0,
@@ -141,3 +143,4 @@ module alloc_enum #(
 
     word_class u_cls (.row(bm[32*c_idx +: 32]), .o0(best0), .o1(best1), .multi(c_multi), .single(c_single));
 endmodule
+/* verilator lint_on DECLFILENAME */

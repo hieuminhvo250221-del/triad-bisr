@@ -59,8 +59,8 @@ module mbist_march (
     wire [31:0] pat_w = e_wval ? ~bgpat : bgpat;
     wire [31:0] pat_r = e_rval ? ~bgpat : bgpat;
     wire [8:0]  last  = len - 9'd1;
-    wire [8:0]  off   = e_down ? (last - idx) : idx;
-    wire [7:0]  cur   = base + off[7:0];
+    wire [7:0]  off   = e_down ? (last[7:0] - idx[7:0]) : idx[7:0];
+    wire [7:0]  cur   = base + off;
 
     assign req_en    = (state == S_REQ);
     assign req_we    = is_write;

@@ -3,7 +3,7 @@ from itertools import combinations
 
 from triad.core import Resources
 from triad.defects import MIXES, Geometry, sample
-from triad.hwmodel import HwConfig, allocate, check, effective
+from triad.hwmodel import HwConfig, HwResult, allocate, check, effective, from_signature, signature
 from triad.partitioned import solve_partitioned
 
 
@@ -81,3 +81,15 @@ def test_matches_exhaustive_search_with_faulty_spare_columns():
         else:
             failed += 1
     assert repaired > 300 and failed > 100
+
+
+def test_signature_round_trip():
+    rng = random.Random(5)
+    for _ in range(300):
+        cfg = HwConfig(pbits=rng.choice((1, 2, 4)), rows=rng.choice((1, 2, 4)))
+        cols = (None,) + tuple(range(cfg.code_bits))
+        steer = tuple((rng.choice(cols), rng.choice(cols)) for _ in range(cfg.parts))
+        words = frozenset(rng.sample(range(cfg.words), rng.randint(0, cfg.rows)))
+        value = signature(HwResult(True, 0, steer, words), cfg)
+        assert value.bit_length() <= 12 * cfg.parts + 9 * cfg.rows
+        assert from_signature(value, cfg) == (steer, words)

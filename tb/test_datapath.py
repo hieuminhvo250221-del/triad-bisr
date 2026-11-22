@@ -13,7 +13,7 @@ PERIOD_NS = 40
 async def reset(dut):
     cocotb.start_soon(Clock(dut.clk, PERIOD_NS, units="ns").start())
     for name in ("en", "we", "raw", "addr", "wdata", "cfg_clear", "steer_we", "steer_part", "steer_sel0",
-                 "steer_sel1", "spare_we", "spare_addr"):
+                 "steer_sel1", "spare_we", "spare_addr", "sig_shift", "sig_in"):
         getattr(dut, name).value = 0
     for a in range(256):  # faults injected by an earlier test must not leak into this one
         stick(dut, a)

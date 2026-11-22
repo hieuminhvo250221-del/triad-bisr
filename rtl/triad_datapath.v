@@ -31,7 +31,11 @@ module triad_datapath #(
     input  wire [5:0]       steer_sel1, // {valid, column} replaced by spare column 1
     input  wire             spare_we,   // give the next free spare word to spare_addr
     input  wire [7:0]       spare_addr,
-    output reg  [2:0]       spare_count,
+    output wire [2:0]       spare_count,
+    // repair-signature serial port (export/import without re-running BIST)
+    input  wire             sig_shift,  // shift the chain once when high (ignored under cfg_clear)
+    input  wire             sig_in,
+    output wire             sig_out,
     // macro port 0
     output wire             m_csb,
     output wire             m_web,
@@ -46,6 +50,28 @@ module triad_datapath #(
     reg [R-1:0]    sw_valid;
     reg [8*R-1:0]  sw_addr;
     reg [30*R-1:0] sw_data;
+
+    // Repair signature S = {sw_addr, sw_valid, sel1_flat, sel0_flat}, length L = 12*P + 9*R:
+    // S[6p +: 6] = sel0 of partition p, S[6*P + 6p +: 6] = sel1 of p, S[12*P + i] = sw_valid[i],
+    // S[12*P + R + 8i +: 8] = spare-word address i.  A shift pushes sig_in into S[0] and drops
+    // S[L-1] on sig_out, so L shifts with sig_in = sig_out restore the state (export), and L
+    // shifts feeding the saved bits MSB first reload it (import).  Spare-word data is not part
+    // of the signature: memory contents are lost at reset anyway.
+    localparam L = 12*P + 9*R;
+    wire [L-1:0] sig_val  = {sw_addr, sw_valid, sel1_flat, sel0_flat};
+    wire [L-1:0] sig_next = {sig_val[L-2:0], sig_in};
+    assign sig_out = sig_val[L-1];
+
+    // spare_count = popcount(sw_valid); spare words are allocated in index order, so the valid
+    // bits form a thermometer code and the count is also the index of the next free word.
+    integer p;
+    reg [2:0] pcnt;
+    always @* begin
+        pcnt = 3'd0;
+        for (p = 0; p < R; p = p + 1)
+            pcnt = pcnt + {2'b00, sw_valid[p]};
+    end
+    assign spare_count = pcnt;
 
     // ---------------------------------------------------------------- write path
     wire [PBITS-1:0] w_part = addr[7 -: PBITS];
@@ -94,7 +120,6 @@ module triad_datapath #(
             rvalid <= 1'b0; rdata <= 24'd0; rd_ce <= 1'b0; rd_ue <= 1'b0; rraw <= 32'd0;
             sel0_flat <= {6*P{1'b0}}; sel1_flat <= {6*P{1'b0}};
             sw_valid <= {R{1'b0}}; sw_addr <= {8*R{1'b0}}; sw_data <= {30*R{1'b0}};
-            spare_count <= 3'd0;
         end else begin
             q_rd   <= en & ~we;
             q_addr <= addr;
@@ -106,8 +131,12 @@ module triad_datapath #(
                 for (k = 0; k < R; k = k + 1)
                     if (sw_valid[k] && sw_addr[8*k +: 8] == addr) sw_data[30*k +: 30] <= w_code;
             if (cfg_clear) begin
-                sel0_flat <= {6*P{1'b0}}; sel1_flat <= {6*P{1'b0}};
-                sw_valid <= {R{1'b0}}; spare_count <= 3'd0;
+                sel0_flat <= {6*P{1'b0}}; sel1_flat <= {6*P{1'b0}}; sw_valid <= {R{1'b0}};
+            end else if (sig_shift) begin
+                sel0_flat <= sig_next[6*P-1 : 0];
+                sel1_flat <= sig_next[12*P-1 : 6*P];
+                sw_valid  <= sig_next[12*P+R-1 : 12*P];
+                sw_addr   <= sig_next[L-1 : 12*P+R];
             end else begin
                 if (steer_we) begin
                     sel0_flat[6*steer_part +: 6] <= steer_sel0;
@@ -119,7 +148,6 @@ module triad_datapath #(
                             sw_valid[k]        <= 1'b1;
                             sw_addr[8*k +: 8]  <= spare_addr;
                         end
-                    spare_count <= spare_count + 3'd1;
                 end
             end
         end

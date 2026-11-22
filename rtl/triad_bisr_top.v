@@ -25,7 +25,12 @@ module triad_bisr_top #(
     output wire [23:0] rdata,
     output wire        rvalid,
     output wire        rd_ce,
-    output wire        rd_ue
+    output wire        rd_ue,
+    // repair-signature serial port (export after BIST, re-import after reset; sig_shift is
+    // ignored while bist_busy)
+    input  wire        sig_shift,
+    input  wire        sig_in,
+    output wire        sig_out
 );
     localparam WBITS = 8 - PBITS;
 
@@ -101,6 +106,7 @@ module triad_bisr_top #(
         .cfg_clear(cfg_clear), .steer_we(steer_we), .steer_part(dp_part),
         .steer_sel0(steer_sel0), .steer_sel1(steer_sel1),
         .spare_we(spare_we), .spare_addr(spare_addr), .spare_count(stat_spare_words),
+        .sig_shift(sig_shift & ~bist_busy), .sig_in(sig_in), .sig_out(sig_out),
         .m_csb(s_csb), .m_web(s_web), .m_addr(s_addr), .m_din(s_din), .m_dout(s_dout));
 
     sky130_sram_1kbyte_1rw1r_32x256_8 u_sram (

@@ -1,0 +1,17 @@
+[tasks]
+ecc
+
+[options]
+ecc: mode prove
+
+[engines]
+ecc: smtbmc bitwuzla
+
+[script]
+ecc: read -formal ecc_formal.v
+ecc: read -formal ecc30_24.v
+ecc: prep -top ecc_formal
+
+[files]
+ecc_formal.v
+../rtl/ecc30_24.v

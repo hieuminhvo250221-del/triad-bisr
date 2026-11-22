@@ -6,12 +6,12 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 RTL="../rtl/ecc30_24.v ../rtl/triad_datapath.v ../rtl/mbist_march.v ../rtl/alloc_enum.v ../rtl/alloc_dp.v ../rtl/bisr_ctrl.v ../rtl/triad_bisr_top.v"
 keep=build/tmp/rtl_orig; rm -rf "$keep"; mkdir -p build/tmp; cp -r rtl "$keep"
 missed=0
-mutate() {  # <name> <file> <sed expression>
+mutate() {  # <name> <file> <sed expression> [testcase]
   if [ -n "${ONLY:-}" ] && [[ "$1" != *"$ONLY"* ]]; then return; fi
   cp "$keep"/*.v rtl/
   sed -i "$3" "rtl/$2"
   if cmp -s "rtl/$2" "$keep/$2"; then echo "NOT APPLIED  $1"; missed=$((missed + 1)); return; fi
-  if TESTCASE=directed_cases bash tb/run.sh top_tb test_top $RTL top_tb.v >/dev/null 2>&1; then
+  if TESTCASE="${4:-directed_cases}" bash tb/run.sh top_tb test_top $RTL top_tb.v >/dev/null 2>&1; then
     echo "MISSED       $1"; missed=$((missed + 1))
   else
     echo "detected     $1"
@@ -27,6 +27,9 @@ mutate "budget comparison off by one"              bisr_ctrl.v      's/else if (
 mutate "spare words only for conflict words"       bisr_ctrl.v      's/| ((state == P2_SCAN_S) \& c_single \& (need != 7'"'"'d0));/;/'
 mutate "March expects the wrong value in element 4" mbist_march.v   's/wire e_rval  = (elem == 3'"'"'d2) | (elem == 3'"'"'d4);/wire e_rval  = (elem == 3'"'"'d2);/'
 mutate "bitmap overwrites instead of accumulating" alloc_enum.v     's/<= bm\[32\*f_idx +: 32\] | f_diff;/<= f_diff;/'
+mutate "verification result ignored"               bisr_ctrl.v      's/pass <= ~m_fail;/pass <= 1'"'"'b1;/' verify_failure
+mutate "signature chain shifts the wrong way"      triad_datapath.v 's/{sig_val\[L-2:0\], sig_in}/{sig_in, sig_val[L-2:0]}/' signature_roundtrip
+mutate "cfg_clear does not clear sw_valid"         triad_datapath.v 's/; sw_valid <= {R{1'"'"'b0}};/; sw_valid <= sw_valid;/' restart_without_reset
 cp "$keep"/*.v rtl/; rm -rf "$keep"
 echo "mutants not detected: $missed"
 exit "$missed"

@@ -1,4 +1,8 @@
 // Black-box view of the OpenRAM macro for synthesis (the real views come from the PDK: LEF, GDS, .lib).
+// A stub carries no logic, so its ports are unused/undriven by definition.
+/* verilator lint_off UNUSED */
+/* verilator lint_off UNDRIVEN */
+/* verilator lint_off DECLFILENAME */
 (* blackbox *)
 module sky130_sram_1kbyte_1rw1r_32x256_8 (
 `ifdef USE_POWER_PINS
@@ -18,3 +22,6 @@ module sky130_sram_1kbyte_1rw1r_32x256_8 (
     output [31:0] dout1
 );
 endmodule
+/* verilator lint_on DECLFILENAME */
+/* verilator lint_on UNDRIVEN */
+/* verilator lint_on UNUSED */

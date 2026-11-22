@@ -117,6 +117,39 @@ def allocate(raw: dict[int, int], cfg: HwConfig, budget: int) -> HwResult:
     return HwResult(True, best[cfg.rows], tuple(steer), frozenset(spare))
 
 
+def signature(alloc: HwResult, cfg: HwConfig) -> int:
+    """Repair state packed into the serial signature S (docs/05_architecture.md section 7).
+
+    S = {sw_addr, sw_valid, sel1_flat, sel0_flat}, length 12*P + 9*R bits:
+    S[6*p +: 6] = sel0 entry of partition p, S[6*P + 6*p +: 6] = sel1 of p (an invalid entry
+    packs as 0), S[12*P + i] = sw_valid[i], S[12*P + R + 8*i +: 8] = address of spare word i
+    (spare words in ascending address order for packing).  Bit L-1 leaves the chain first.
+    """
+    sel0_flat = sel1_flat = 0
+    for p, (c0, c1) in enumerate(alloc.steer):
+        if c0 is not None:
+            sel0_flat |= (32 | c0) << 6 * p
+        if c1 is not None:
+            sel1_flat |= (32 | c1) << 6 * p
+    words = sorted(alloc.spare_words)[: cfg.rows]
+    valid = sum(1 << i for i in range(len(words)))
+    addr = sum(w << 8 * i for i, w in enumerate(words))
+    return (addr << (12 * cfg.parts + cfg.rows)) | (valid << 12 * cfg.parts) | \
+        (sel1_flat << 6 * cfg.parts) | sel0_flat
+
+
+def from_signature(value: int, cfg: HwConfig) -> tuple[tuple, frozenset]:
+    """Unpack the serial signature into (steer, spare_words); the inverse of `signature`."""
+    dec = lambda e: (e & 31) if e & 32 else None
+    steer = tuple(
+        (dec(value >> 6 * p & 63), dec(value >> (6 * cfg.parts + 6 * p) & 63))
+        for p in range(cfg.parts))
+    valid = value >> 12 * cfg.parts & (2 ** cfg.rows - 1)
+    addr = value >> (12 * cfg.parts + cfg.rows)
+    words = frozenset(addr >> 8 * i & 255 for i in range(cfg.rows) if valid >> i & 1)
+    return steer, words
+
+
 def check(raw: dict[int, int], cfg: HwConfig, budget: int, res: HwResult) -> bool:
     """Independent validation of a claimed repair."""
     if not res.repairable:

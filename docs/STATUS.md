@@ -2,6 +2,26 @@
 
 Cập nhật file này sau mỗi mốc. Mục mới nhất ở trên cùng.
 
+
+## Signoff vật lý, cổng chữ ký sửa, kiểm chứng mở rộng (try15)
+
+- RTL: thêm cổng nối tiếp xuất/nhập chữ ký sửa (`sig_shift/sig_in/sig_out`), `spare_count` thành tổ hợp.
+  Tổng hợp PBITS=4, R=2: 94.427 µm², 1.070 FF (trước: 92.031 µm², 1.073 FF).
+- Kiểm chứng: pytest 92 đạt; datapath 5/5; hệ thống 7/7 ở ba cấu hình; đột biến 13/13 bị phát hiện;
+  Verilator `-Wall` sạch; SBY: ECC chứng minh bằng quy nạp, lái cột BMC độ sâu 11 (độ sâu 40 không khả thi).
+- GLS sau route (try15, chức năng, không SDF): 8/8 ca khớp mô hình vàng.
+- OpenLane try15 (40 ns, 0,936 mm²): route 0, LVS 0, setup/hold đạt ở ba góc RC, DRC trên GDS
+  (macro dạng abstract) 0. **Chưa sạch:** 1 lỗi antenna (met1, tỉ lệ 1,49), 200 chân vi phạm max slew
+  (xấu nhất 1,33 ns / 0,75 ns), 1705 vi phạm max fanout.
+- Nguyên nhân slew: diode được chèn sau lần resizer cuối nên điện dung thêm không được đệm lại; biên
+  slew của resizer từ 40 % trở lên làm `repair_design` treo (try8, try13, try14).
+- 163 lỗi `nwell.4` của DRC mặc định: thử trên `spm` cho thấy lỗi chỉ xuất hiện khi
+  `MAGIC_DRC_USE_GDS=0` (cell dạng abstract không có hình học tap), cùng luật và cùng vị trí cột tap.
+
+### Việc tiếp theo
+Baseline EBISR/autoMBIST, mô hình FIT, đánh giá 4096×39 + PPA biến thể, paper + slide, rồi website
+(Astro, song ngữ, GitHub Pages).
+
 ## 2026-11-22 — Phương án A: lý thuyết, mô hình phân vùng, đặc tả, RTL bản 1
 
 - Người dùng chọn phương án A (ba trụ): `docs/00_plan.md` mục 9, căn cứ `docs/03_stronger_contribution.md`.
