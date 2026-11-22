@@ -12,7 +12,7 @@ mkdir -p "$DST/build"
   sed -i 's/\r$//' "$f" && echo "normalised line endings: $f"
 done
 rsync -rlt --delete --chmod=D755,F644 \
-  --exclude '.git/' --exclude 'build/' --exclude '__pycache__/' --exclude '.pytest_cache/' --exclude 'sim_build/' \
+  --exclude '.git/' --exclude 'build/' --exclude 'runs/' --exclude '__pycache__/' --exclude '.pytest_cache/' --exclude 'sim_build/' \
   "$SRC"/ "$DST"/
 chmod +x "$DST"/tools/*.sh "$DST"/tools/bin/* "$DST"/tools/setup/*.sh 2>/dev/null || true
 printf '%s\n' "$SRC" > "$DST/build/.src_path"
