@@ -1,0 +1,33 @@
+`timescale 1ns/1ps
+// Simulation top: TRIAD-P with the fault-injectable macro model and a free-running 25 MHz clock
+// (generated here so that the Python side does not have to toggle it).
+module top_tb #(parameter PBITS = 4, parameter R = 2, parameter NBG = 1) (
+    input  wire        rst_n,
+    input  wire        bist_start,
+    input  wire [4:0]  cfg_k,
+    output wire        bist_busy,
+    output wire        bist_done,
+    output wire        bist_pass,
+    output wire [1:0]  stat_fail_code,
+    output wire [5:0]  stat_ecc_words,
+    output wire [2:0]  stat_spare_words,
+    input  wire        req_en,
+    input  wire        req_we,
+    input  wire [7:0]  req_addr,
+    input  wire [23:0] req_wdata,
+    output wire [23:0] rdata,
+    output wire        rvalid,
+    output wire        rd_ce,
+    output wire        rd_ue,
+    output reg         clk
+);
+    initial clk = 1'b0;
+    always #20 clk = ~clk;
+
+    triad_bisr_top #(.PBITS(PBITS), .R(R), .NBG(NBG)) dut (
+        .clk(clk), .rst_n(rst_n), .bist_start(bist_start), .cfg_k(cfg_k),
+        .bist_busy(bist_busy), .bist_done(bist_done), .bist_pass(bist_pass),
+        .stat_fail_code(stat_fail_code), .stat_ecc_words(stat_ecc_words), .stat_spare_words(stat_spare_words),
+        .req_en(req_en), .req_we(req_we), .req_addr(req_addr), .req_wdata(req_wdata),
+        .rdata(rdata), .rvalid(rvalid), .rd_ce(rd_ce), .rd_ue(rd_ue));
+endmodule

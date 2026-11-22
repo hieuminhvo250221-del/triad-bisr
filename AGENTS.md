@@ -88,6 +88,23 @@ tools/setup/91_smoke_latex.sh      # IEEEtran PDF
 tools/setup/92_smoke_orfs.sh       # gcd on sky130hd
 ```
 
+## Project commands (inside WSL, from the mirror, after `source tools/env.sh`)
+
+```bash
+python -m pytest -q                         # golden models vs exhaustive search, theory checks (~90 s)
+bash tb/regress.sh 24                       # cocotb: datapath unit tests + system tests for 3 configurations
+bash tb/mutation_check.sh                   # 10 RTL mutants must all be caught by the directed system test
+PYTHONPATH=model python -m triad.ecc rtl/ecc30_24.v   # regenerate the ECC RTL (copy it back to the repo)
+cd model && python -m triad.mc --preset protocol --mixes kang_dl --trials 10000 --out ../build/proto/x.csv
+```
+
+- cocotb runs on the apt Icarus 11 (`ICARUS_BIN_DIR=/usr/bin` in `tb/Makefile`): the OSS CAD Suite `vvp`
+  embeds its own Python and cannot load the venv.  Verilator 5 from OSS CAD Suite is used for lint.
+- The RTL is checked against `model/triad/hwmodel.py` (same enumeration order, so even the chosen steering
+  table and spare words must match), which is checked against the exact solvers and exhaustive search.
+- Files written with the editor's file-writing tool arrive with CRLF; `tools/sync_to_wsl.sh` converts them.
+- A shell command longer than about 8 kB is silently truncated: write big files in several pieces.
+
 ## Conventions
 
 - RTL: Verilog-2005 (must pass Icarus, Verilator lint, Yosys 0.30 inside OpenLane).

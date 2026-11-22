@@ -58,6 +58,10 @@ Hệ quả cần ghi trong paper:
   mã địa chỉ chỉ lộ ra ở lượt 3; khi đó kết luận là "không sửa được" chứ không được phân tích lại.
 - Phần cứng tối thiểu (E, số từ dự phòng); không tối thiểu số đoạn cột dự phòng (dùng thêm không tốn gì).
 - Từ dự phòng bằng flip-flop coi là không lỗi (thuộc phạm vi kiểm tra logic).
+- Ngân sách K được bảo đảm đối với các lỗi quan sát được ở lượt 1-2. Lỗi đơn chỉ xuất hiện ở lượt 3 sẽ
+  được ECC sửa mà không bị tính vào E. Đếm chính xác số từ được sửa ở lượt 3 cần nhớ theo từng từ
+  (một bộ đếm theo lần đọc là sai: lỗi dính-1 ở bit kiểm tra 28, 29 hiện ra ở cả hai mẫu dữ liệu);
+  để lại làm việc sau, có thể tái dùng bitmap cửa sổ.
 
 ## 3. Giao diện `triad_bisr_top`
 

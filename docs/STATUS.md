@@ -2,6 +2,27 @@
 
 Cập nhật file này sau mỗi mốc. Mục mới nhất ở trên cùng.
 
+## 2026-11-22 — Phương án A: lý thuyết, mô hình phân vùng, đặc tả, RTL bản 1
+
+- Người dùng chọn phương án A (ba trụ): `docs/00_plan.md` mục 9, căn cứ `docs/03_stronger_contribution.md`.
+- Lý thuyết: `docs/04_theory.md` (NP-đầy đủ, nhân chặt, đa thức khi S cố định, phân vùng); mọi phát biểu
+  có test máy trong `model/tests/test_theory.py`.
+- Mô hình: `partitioned.py` (chính xác, có test vét cạn), `colenum.py`, `hwmodel.py` (đúng thuật toán
+  phần cứng, kể cả cột dự phòng bị lỗi), `ecc.py` (sinh RTL mã Hsiao 30,24). 91 test đạt.
+- Đặc tả: `docs/05_architecture.md`. Phần cứng không dùng CAM/tìm kiếm: bitmap một cửa sổ + duyệt phương
+  án lái cột + quy hoạch động.
+- RTL bản 1 (`rtl/`): `triad_datapath`, `mbist_march`, `alloc_enum`, `alloc_dp`, `bisr_ctrl`,
+  `triad_bisr_top`. Lint Verilator sạch. cocotb: 5 test đường dữ liệu; test hệ thống cho 3 cấu hình
+  (PBITS/R = 4/2, 2/1, 3/4), mỗi cấu hình 10 ca có hướng + 24 bản đồ lỗi ngẫu nhiên, RTL khớp mô hình
+  vàng cả về bảng lái cột và từ dự phòng. 10/10 đột biến RTL bị test phát hiện.
+- Đã thử rồi bỏ: đếm số lần ECC sửa ở lượt kiểm tra để ép ngân sách K (đếm theo lần đọc là sai).
+- Đang chạy: Monte Carlo theo giao thức chuẩn (10 000 mẫu, 4 hỗn hợp lỗi, có phân vùng).
+
+### Việc tiếp theo
+1. Tổng hợp Yosys lấy số cổng; chạy OpenLane 1 (macro + logic) ra GDS.
+2. Phân tích Monte Carlo giao thức; hồi quy RTL quy mô lớn bằng Verilator.
+3. Baseline: bộ cấp phát không phân vùng (PBITS=0) và autoMBIST.
+
 ## 2026-11-22 — Pha 1 (G1) và pha 2a (G2) xong lượt đầu
 
 - Mô hình vàng Python (`model/triad/`) khớp vét cạn 100 % trên 9 000 bản đồ lỗi; 9 test đạt; kiểm tra
