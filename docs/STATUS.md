@@ -2,6 +2,21 @@
 
 Cập nhật file này sau mỗi mốc. Mục mới nhất ở trên cùng.
 
+## 2026-11-22 — Pha 1 (G1) và pha 2a (G2) xong lượt đầu
+
+- Mô hình vàng Python (`model/triad/`) khớp vét cạn 100 % trên 9 000 bản đồ lỗi; 9 test đạt; kiểm tra
+  đột biến xác nhận test đủ nhạy.
+- G1: **thu hẹp** phát biểu đóng góp (đã có RA tối ưu spare + ECC phía ATE: Lv et al., TC 2021).
+- G2: giữ kiến trúc, đổi trọng tâm. Chính xác so với tham lam: tối đa +0.40 điểm % yield. Công thức
+  đồng thời so với ECC-trước + mua lại: +1 đến +28 điểm % khi có lỗi đường. Xem `docs/02_g2_report.md`.
+- Phát biểu đóng góp mới và thay đổi các pha sau: mục 8 của `docs/00_plan.md`.
+- Còn nợ: toàn văn Lv 2021 / Lu 2016 / Han 2021; chạy bộ nhớ lớn (4096x39) với nhiều mẫu hơn;
+  mô hình spare có lỗi; số đo SER thực cho sky130.
+
+### Việc tiếp theo
+1. Pha 3: đặc tả kiến trúc + sơ đồ (giao diện macro, định thời đọc nửa chu kỳ, CSR, FSM).
+2. Pha 4: RTL (ecc, mbist, fault_collect, bộ giải chính xác và bộ tham lam, bisr_datapath, top).
+
 ## 2026-11-22 — Pha 0 hoàn tất (môi trường)
 
 - Kế hoạch được duyệt (`docs/00_plan.md`): BIRA 3 tài nguyên + ECC, macro OpenRAM sky130 thật, làm mới

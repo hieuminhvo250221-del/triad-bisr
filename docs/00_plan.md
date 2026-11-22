@@ -110,3 +110,30 @@ ngoài Y, và số từ còn đúng 1 bit lỗi ngoài Y (E) <= K.
 - DRC/LVS coi macro là IP đã kiểm chứng (hộp đen).
 - Từ 24 bit để vừa khít một macro; 32 bit dữ liệu cần hai macro (phần mở rộng).
 - Không có silicon; sửa mềm thay cho eFuse.
+
+## 8. Kết quả cổng G1 và G2 (2026-11-22) — phát biểu đóng góp đã chỉnh
+
+Chi tiết: `docs/01_related_work.md`, `docs/02_g2_report.md`.
+
+- **G1: thu hẹp.** Lv et al. (IEEE Trans. Computers 2021) đã có RA tối ưu cho spare + in-memory ECC
+  (phía ATE, DRAM, không ngân sách); Han et al. (IEEE Access 2021) đã nhắm dùng ECC tiết kiệm. Vì vậy
+  **không** viết "first joint/optimal ECC + redundancy analysis".
+- **G2: giữ kiến trúc, đổi trọng tâm.** Tìm kiếm chính xác chỉ hơn heuristic tham lam cùng công thức
+  tối đa 0.40 điểm % yield. Lợi ích đo được nằm ở công thức đồng thời (+1 đến +28 điểm % so với
+  ECC-trước + mua lại khi có lỗi đường), ở bước mua lại (ít hơn 55–100 % từ tiêu ECC so với kiểu EBISR)
+  và ở ngân sách K.
+
+Phát biểu đóng góp dùng từ nay:
+
+1. Bộ phân bổ **tích hợp trên chip** cho ba tài nguyên (từ dự phòng, cột dự phòng, ECC) **dưới ngân
+   sách độ tin cậy K lập trình được**, có bước mua lại để tối thiểu số từ tiêu ECC.
+2. Chặn trên **chặt** cho bộ lưu lỗi, `R + S(R+K) + K`, và must-repair có ECC cho cả từ lẫn cột.
+3. Bộ giải chính xác nối tiếp có chặn 3^(R+S) nút, kèm **so sánh chi phí phần cứng với bộ tham lam**:
+   trả lời câu hỏi "bảo đảm tối ưu tốn bao nhiêu diện tích và thời gian".
+4. Hiện thực RTL-to-GDS nguồn mở trên sky130 với macro OpenRAM thật; đường cong đánh đổi
+   yield – số từ tiêu ECC (FIT) – PPA theo K.
+
+Thay đổi trong các pha sau:
+- Pha 4: viết thêm RTL bộ tham lam (cùng giao diện) để so PPA với bộ chính xác.
+- Pha 7: thêm thí nghiệm "chính xác so với tham lam" (diện tích, số chu kỳ phân tích, fmax).
+- Pha 1 còn nợ: đọc toàn văn Lv 2021, Lu 2016, Han 2021 để so cấu trúc tìm kiếm và cài lại EBISR đúng bản gốc.
