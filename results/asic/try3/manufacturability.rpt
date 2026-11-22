@@ -1,0 +1,20 @@
+Design Name: triad_bisr_top
+Run Directory: /home/hieu/work/triad_bisr/flow/openlane/triad_bisr_top/runs/try3
+----------------------------------------
+
+Magic DRC Summary:
+Source: /home/hieu/work/triad_bisr/flow/openlane/triad_bisr_top/runs/try3/reports/signoff/drc.rpt
+Violation Message "All nwells must contain metal-connected N+ taps (nwell.4) "found 649 Times.
+Total Magic DRC violations is 649
+----------------------------------------
+
+LVS Summary:
+Source: /home/hieu/work/triad_bisr/flow/openlane/triad_bisr_top/runs/try3/logs/signoff/39-triad_bisr_top.lef.lvs.log
+Number of nets: 11391                      |Number of nets: 11391                      
+Design is LVS clean.
+----------------------------------------
+
+Antenna Summary:
+Source: /home/hieu/work/triad_bisr/flow/openlane/triad_bisr_top/runs/try3/logs/signoff/41-arc.log
+Pin violations: 220
+Net violations: 201

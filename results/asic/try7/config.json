@@ -1,0 +1,54 @@
+{
+    "DESIGN_NAME": "triad_bisr_top",
+    "VERILOG_FILES": [
+        "dir::../../../rtl/ecc30_24.v",
+        "dir::../../../rtl/triad_datapath.v",
+        "dir::../../../rtl/mbist_march.v",
+        "dir::../../../rtl/alloc_enum.v",
+        "dir::../../../rtl/alloc_dp.v",
+        "dir::../../../rtl/bisr_ctrl.v",
+        "dir::../../../rtl/triad_bisr_top.v"
+    ],
+    "VERILOG_FILES_BLACKBOX": [
+        "dir::../../common/sram_blackbox.v"
+    ],
+    "EXTRA_LEFS": [
+        "pdk_dir::libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef"
+    ],
+    "EXTRA_GDS_FILES": [
+        "pdk_dir::libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds"
+    ],
+    "EXTRA_LIBS": [
+        "pdk_dir::libs.ref/sky130_sram_macros/lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib"
+    ],
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 40,
+    "FP_SIZING": "absolute",
+    "DIE_AREA": "0 0 1300 720",
+    "MACRO_PLACEMENT_CFG": "dir::macro.cfg",
+    "FP_PDN_MACRO_HOOKS": "u_sram vccd1 vssd1 vccd1 vssd1",
+    "VDD_NETS": "vccd1",
+    "GND_NETS": "vssd1",
+    "PL_TARGET_DENSITY": 0.3,
+    "FP_PDN_VPITCH": 100,
+    "FP_PDN_HPITCH": 100,
+    "ROUTING_CORES": 10,
+    "RUN_KLAYOUT_XOR": 0,
+    "MAGIC_DRC_USE_GDS": 0,
+    "QUIT_ON_MAGIC_DRC": 0,
+    "QUIT_ON_LVS_ERROR": 0,
+    "QUIT_ON_TIMING_VIOLATIONS": 0,
+    "QUIT_ON_SLEW_VIOLATIONS": 0,
+    "QUIT_ON_TR_DRC": 0,
+    "PL_MACRO_HALO": "20 20",
+    "GRT_ALLOW_CONGESTION": 1,
+    "GRT_ADJUSTMENT": 0.3,
+    "GRT_LAYER_ADJUSTMENTS": "0.99,0.7,0.2,0,0,0",
+    "CTS_SINK_CLUSTERING_SIZE": 12,
+    "GPL_CELL_PADDING": 4,
+    "DPL_CELL_PADDING": 4,
+    "RUN_HEURISTIC_DIODE_INSERTION": 1,
+    "GRT_MAX_DIODE_INS_ITERS": 10,
+    "HEURISTIC_ANTENNA_THRESHOLD": 40,
+    "DIODE_ON_PORTS": "in"
+}
