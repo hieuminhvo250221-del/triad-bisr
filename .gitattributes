@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.gds binary
+*.gds.gz binary
+*.png binary
+*.pdf binary
+*.pptx binary
+*.odb binary

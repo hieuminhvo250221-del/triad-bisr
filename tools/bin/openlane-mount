@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Re-open the original OpenLane 1 checkout exactly like before (`make mount` in ~/OpenLane).
+# The branch name of that checkout (my_openlane_work) makes the Makefile look for a Docker tag
+# that does not exist, so the upstream tag is passed explicitly.  Nothing in ~/OpenLane is edited.
+set -euo pipefail
+: "${OPENLANE_IMAGE_NAME:?source tools/env.sh first}"
+cd "${OPENLANE_ROOT:-$HOME/OpenLane}"
+exec make mount OPENLANE_IMAGE_NAME="$OPENLANE_IMAGE_NAME"

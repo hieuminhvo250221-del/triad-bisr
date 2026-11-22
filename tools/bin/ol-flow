@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# OpenLane 1 RTL-to-GDS:  ol-flow -design <absolute design dir> -tag <tag> [-overwrite]
+exec "$(dirname "${BASH_SOURCE[0]}")/ol-exec" flow.tcl "$@"

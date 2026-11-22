@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# OpenSTA bundled with the OpenROAD 26Q2 install (the apt /usr/bin/sta is a 2019 build).
+P="${OPENROAD_PREFIX:-$HOME/.local/opt/openroad-26Q2-1164-g08f67ee5ec}"
+export LD_LIBRARY_PATH="$P/opt/or-tools/lib:$P/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$P/usr/bin/sta" "$@"

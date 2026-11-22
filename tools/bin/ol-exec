@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Run a command inside the OpenLane 1 container.  Same mounts as `make mount` in ~/OpenLane,
+# except that the image's own /openlane is used, so ~/OpenLane is never read or written.
+#   ol-exec magic -dnull -noconsole ...      ol-exec flow.tcl -design <abs dir> -tag t1
+set -euo pipefail
+: "${OPENLANE_IMAGE:?source tools/env.sh first}"
+args=(--rm -v "$HOME:$HOME" -e "PDK_ROOT=$PDK_ROOT" -e "PDK=$PDK" -e "STD_CELL_LIBRARY=$STD_CELL_LIBRARY"
+      --user "$(id -u):$(id -g)" -w "$PWD")
+case "$PDK_ROOT" in "$HOME"/*) ;; *) args+=(-v "$PDK_ROOT:$PDK_ROOT") ;; esac
+if [ -n "${DISPLAY:-}" ] && [ -d /tmp/.X11-unix ]; then
+  args+=(-e "DISPLAY=$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix --network host)
+fi
+[ -n "${ROUTING_CORES:-}" ] && args+=(-e "ROUTING_CORES=$ROUTING_CORES")
+if [ -t 0 ] && [ -t 1 ]; then
+  exec docker run -it "${args[@]}" "$OPENLANE_IMAGE" "$@"
+else
+  exec docker run "${args[@]}" "$OPENLANE_IMAGE" "$@" </dev/null
+fi

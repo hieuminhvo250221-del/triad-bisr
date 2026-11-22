@@ -1,0 +1,24 @@
+# generated / local
+build/
+runs/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+sim_build/
+*.vcd
+*.fst
+*.vvp
+results.xml
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+# OS / editors
+.DS_Store
+Thumbs.db
+*.swp

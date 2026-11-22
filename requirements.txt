@@ -1,0 +1,9 @@
+# Python 3.10 (WSL).  Exact pins; every version was published >= 7 days before 2026-11-22.
+numpy==2.2.6
+scipy==1.15.3
+matplotlib==3.10.9
+pandas==2.3.3
+pytest==9.2.0
+cocotb==1.9.2
+python-pptx==1.0.2
+PyYAML==6.0.3
