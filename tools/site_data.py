@@ -213,17 +213,29 @@ def protocol_large_json() -> dict:
     files = sorted(d.glob("protocol_large_*.csv")) if d.is_dir() else []
     if not files:
         return {"available": False}
-    # series key: R,S,K,algo -> trials + defects -> repaired/trials
-    series: dict[str, dict] = {}
+    curves: dict[tuple, dict[int, float]] = {}
+    trials: set[int] = set()
     for f in files:
         for r in read_csv(f):
-            key = f"{r['R']},{r['S']},{r['K']},{r['algo']}"
-            s = series.setdefault(key, {"trials": int(r["trials"]), "rate": {}})
-            s["rate"][int(r["defects"])] = int(r["repaired"]) / int(r["trials"])
-    for key, s in series.items():
-        s["n90"] = n90_interp(s["rate"], max(s["rate"]))
-        s["rate"] = {str(k): v for k, v in s["rate"].items()}
-    return {"available": True, "series": series}
+            key = (r["mix"], int(r["R"]), int(r["S"]), int(r["K"]), r["algo"])
+            curves.setdefault(key, {})[int(r["defects"])] = int(r["repaired"]) / int(r["trials"])
+            trials.add(int(r["trials"]))
+    if len(trials) != 1:
+        die(f"protocol_large: files disagree on trials per point: {sorted(trials)}")
+    rs = {k[1] for k in curves}
+    if len(rs) != 1:
+        die(f"protocol_large: more than one R: {sorted(rs)}")
+    order = ["triad_p64", "triad_p16", "triad_rel", "ef_exact_bb", "exact_2d"]
+    present = {k[4] for k in curves}
+    rows = []
+    for (mix, r_, s_, k_, algo), rate in sorted(curves.items()):
+        if algo not in order:
+            continue
+        n90 = n90_interp(rate, max(rate))
+        rows.append({"mix": mix, "R": r_, "S": s_, "K": k_, "algo": algo,
+                     "n90": None if isinstance(n90, str) else n90, "max_defects": max(rate)})
+    return {"available": True, "R": rs.pop(), "trials": trials.pop(),
+            "algos": [a for a in order if a in present], "rows": rows}
 
 
 def chip3d_json() -> dict:
