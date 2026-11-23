@@ -35,12 +35,12 @@ sửa được.
 |---|---|---|---|---|---|
 | 4 | TRIAD | 0,986 | 0,44 | | 0,0064 |
 | 4 | TRIAD-P16 | 0,986 | 0,03 | | 0,0004 |
-| 4 | ECC-trước (kiểu EBISR) | 0,828 | 4,63 | 0,41 | 0,0672 |
+| 4 | ECC-trước, không mua lại | 0,828 | 4,63 | 0,41 | 0,0672 |
 | 8 | TRIAD | 0,914 | 4,47 | | 0,0648 |
 | 8 | TRIAD-P4 | 0,930 | 1,51 | | 0,0219 |
 | 8 | TRIAD-P16 | 0,930 | 0,53 | | 0,0076 |
 | 8 | ECC-trước + mua lại | 0,687 | 4,33 | 4,27 | 0,0628 |
-| 8 | ECC-trước (kiểu EBISR) | 0,245 | 6,69 | 3,88 | 0,0970 |
+| 8 | ECC-trước, không mua lại | 0,245 | 6,69 | 3,88 | 0,0970 |
 | 12 | TRIAD | 0,373 | 7,22 | | 0,1046 |
 | 12 | TRIAD-P16 | 0,788 | 1,27 | | 0,0185 |
 
@@ -49,4 +49,5 @@ Nhận xét:
   gần bằng "ECC-trước + mua lại" (4,27 so với 4,33); khác biệt với baseline sau nằm ở tỉ lệ sửa.
 - Bộ tham lam cùng công thức cho E gần như bằng bộ chính xác (xem `fit_summary.csv`).
 - Phân vùng giảm E mạnh nhất: P16 giảm khoảng 8 lần ở 8 khuyết tật.
-- Baseline "ECC-trước" được cài theo mô tả tóm tắt của EBISR, chưa đối chiếu toàn văn bài gốc.
+- "ECC-trước" ở đây là `ef_exact` (ECC trước, rồi phân tích spare chính xác, không mua lại). Các baseline
+  ECC-trước được cài theo mô tả tóm tắt của EBISR, chưa đối chiếu toàn văn bài gốc.

@@ -29,6 +29,9 @@ PRESETS = {
     "large": dict(geom=(4096, 39, 8), defects=range(2, 41, 2), rs=[(8, 2), (8, 4)], ks=[0, 8, 32, 4096]),
     # evaluation protocol for the paper: project memory, plain and address-partitioned steering
     "protocol": dict(geom=(256, 30, 2), defects=range(1, 31), rs=[(2, 2), (4, 2)], ks=[0, 2, 8], parts=(4, 16)),
+    # the same protocol on the larger memory
+    "protocol_large": dict(geom=(4096, 39, 8), defects=range(2, 61, 2), rs=[(8, 2), (8, 4)], ks=[0, 8, 32],
+                           parts=(16, 64)),
 }
 FIELDS = ["words", "bits", "wpr", "mix", "defects", "trials", "R", "S", "K", "algo", "repaired", "sum_ecc",
           "sum_spares", "sum_ecc_triad", "sum_spares_triad", "max_nodes", "sum_nodes", "max_kernel_words"]
