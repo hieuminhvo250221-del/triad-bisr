@@ -1,0 +1,131 @@
+---
+import { t } from "../i18n";
+const uid = "ad";
+---
+<div class="diagramwrap" tabindex="0" role="region" aria-label={t("archTitle")}>
+<svg class="archsvg" viewBox="0 0 1400 640" role="img" aria-labelledby={`${uid}-t ${uid}-d`}>
+  <title id={`${uid}-t`}>{t("archTitle")}</title>
+  <desc id={`${uid}-d`}>{t("archDesc")}</desc>
+  <defs>
+    <marker id={`${uid}-arr`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 Z" class="arr"/>
+    </marker>
+    <marker id={`${uid}-arracc`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 Z" class="arracc"/>
+    </marker>
+  </defs>
+
+  <!-- content is shifted right by 120px so the left margin can hold port labels -->
+  <g transform="translate(120 0)">
+  <!-- ================= row 1: bisr_ctrl bar + ports ================= -->
+  <text class="nm" x="22" y="58">{t("archIn1")}</text>
+  <line class="arr-line" x1="22" y1="68" x2="244" y2="68" marker-end={`url(#${uid}-arr)`}/>
+  <rect class="blk" x="250" y="40" width="940" height="56"/>
+  <text class="nm" x="720" y="63" text-anchor="middle">bisr_ctrl</text>
+  <text class="lb" x="720" y="82" text-anchor="middle">{t("archSeq")}</text>
+  <line class="arr-line" x1="1190" y1="68" x2="1270" y2="68" marker-end={`url(#${uid}-arr)`}/>
+  <text class="nm" x="1185" y="112" text-anchor="end">bist_done,</text>
+  <text class="nm" x="1185" y="126" text-anchor="end">bist_pass,</text>
+  <text class="nm" x="1185" y="140" text-anchor="end">stat_*</text>
+
+  <!-- ================= row 2: three blocks ================= -->
+  <rect class="blk" x="250" y="150" width="180" height="68"/>
+  <text class="nm" x="340" y="172" text-anchor="middle">mbist_march</text>
+  <text class="lb" x="340" y="192" text-anchor="middle">{t("archMarch")}</text>
+
+  <rect class="blk" x="640" y="150" width="190" height="68"/>
+  <text class="nm" x="735" y="170" text-anchor="middle">alloc_enum</text>
+  <text class="lb" x="735" y="188" text-anchor="middle">{t("archEnumA")}</text>
+  <text class="lb" x="735" y="202" text-anchor="middle">{t("archEnumB")}</text>
+
+  <rect class="blk" x="1020" y="150" width="170" height="68"/>
+  <text class="nm" x="1105" y="170" text-anchor="middle">alloc_dp</text>
+  <text class="lb" x="1105" y="188" text-anchor="middle">{t("archDpA")}</text>
+  <text class="lb" x="1105" y="202" text-anchor="middle">{t("archDpB")}</text>
+
+  <!-- bar <-> blocks, short vertical double-headed -->
+  <line class="arr-line" x1="340" y1="96" x2="340" y2="144" marker-start={`url(#${uid}-arr)`} marker-end={`url(#${uid}-arr)`}/>
+  <line class="arr-line" x1="735" y1="96" x2="735" y2="144" marker-start={`url(#${uid}-arr)`} marker-end={`url(#${uid}-arr)`}/>
+  <line class="arr-line" x1="1105" y1="96" x2="1105" y2="144" marker-start={`url(#${uid}-arr)`} marker-end={`url(#${uid}-arr)`}/>
+
+  <!-- horizontal arrows between blocks, labels above -->
+  <text class="lb" x="535" y="172" text-anchor="middle">{t("archFail")}</text>
+  <line class="arr-line" x1="430" y1="184" x2="634" y2="184" marker-end={`url(#${uid}-arr)`}/>
+  <text class="lb" x="925" y="172" text-anchor="middle">{t("archShare")}</text>
+  <line class="arr-line" x1="830" y1="184" x2="1014" y2="184" marker-end={`url(#${uid}-arr)`}/>
+
+  <!-- mbist_march <-> datapath group -->
+  <line class="arr-line" x1="340" y1="218" x2="340" y2="244" marker-start={`url(#${uid}-arr)`} marker-end={`url(#${uid}-arr)`}/>
+  <text class="lb" x="352" y="234">{t("archAccess")}</text>
+
+  <!-- ================= row 3: datapath group ================= -->
+  <rect class="grp" x="60" y="250" width="1080" height="300"/>
+  <text class="nm" x="70" y="270">triad_datapath</text>
+
+  <!-- repair-state sub-row -->
+  <rect class="blk" x="200" y="290" width="230" height="52"/>
+  <text class="nm" x="315" y="310" text-anchor="middle">steering table</text>
+  <text class="lb" x="315" y="330" text-anchor="middle">{t("archTable")}</text>
+
+  <rect class="blk" x="480" y="290" width="210" height="52"/>
+  <text class="nm" x="585" y="310" text-anchor="middle">spare words</text>
+  <text class="lb" x="585" y="330" text-anchor="middle">{t("archSpare")}</text>
+
+  <rect class="blk" x="760" y="290" width="180" height="52"/>
+  <text class="nm" x="850" y="310" text-anchor="middle">signature chain</text>
+  <text class="lb" x="850" y="330" text-anchor="middle">{t("archSig")}</text>
+
+  <!-- pipeline sub-row -->
+  <rect class="blk" x="120" y="420" width="100" height="64"/>
+  <text class="nm" x="170" y="456" text-anchor="middle">ecc enc</text>
+  <rect class="blk" x="240" y="420" width="70" height="64"/>
+  <text class="nm" x="275" y="456" text-anchor="middle">steer</text>
+  <rect class="macro" x="330" y="420" width="300" height="64"/>
+  <text class="nm" x="480" y="447" text-anchor="middle">sky130_sram_1kbyte_1rw1r_32x256_8</text>
+  <text class="lb" x="480" y="467" text-anchor="middle">256 × 32, OpenRAM, unmodified</text>
+  <rect class="blk" x="650" y="420" width="75" height="64"/>
+  <text class="nm" x="687" y="456" text-anchor="middle">unsteer</text>
+  <rect class="blk" x="745" y="420" width="120" height="64"/>
+  <text class="nm" x="805" y="456" text-anchor="middle">spare-word mux</text>
+  <rect class="blk" x="885" y="420" width="80" height="64"/>
+  <text class="nm" x="925" y="456" text-anchor="middle">ecc dec</text>
+  <rect class="blk" x="985" y="420" width="70" height="64"/>
+  <text class="nm" x="1020" y="456" text-anchor="middle">out reg</text>
+
+  <line class="arr-line" x1="220" y1="452" x2="234" y2="452" marker-end={`url(#${uid}-arr)`}/>
+  <line class="arr-line" x1="310" y1="452" x2="324" y2="452" marker-end={`url(#${uid}-arr)`}/>
+  <line class="arr-line" x1="630" y1="452" x2="644" y2="452" marker-end={`url(#${uid}-arr)`}/>
+  <line class="arr-line" x1="725" y1="452" x2="739" y2="452" marker-end={`url(#${uid}-arr)`}/>
+  <line class="arr-line" x1="865" y1="452" x2="879" y2="452" marker-end={`url(#${uid}-arr)`}/>
+  <line class="arr-line" x1="965" y1="452" x2="979" y2="452" marker-end={`url(#${uid}-arr)`}/>
+
+  <!-- repair-state -> pipeline vertical connectors (staggered, orthogonal) -->
+  <path class="arr-line" d="M275 342 L275 414" marker-end={`url(#${uid}-arr)`}/>
+  <path class="arr-line" d="M415 342 L415 395 L687 395 L687 414" marker-end={`url(#${uid}-arr)`}/>
+  <path class="arr-line" d="M660 342 L660 370 L805 370 L805 414" marker-end={`url(#${uid}-arr)`}/>
+
+  <!-- ================= accent: program repair ================= -->
+  <path class="acc-line" d="M250 88 L30 88 L30 316 L194 316" marker-end={`url(#${uid}-arracc)`}/>
+  <path class="acc-line" d="M430 316 L474 316" marker-end={`url(#${uid}-arracc)`}/>
+  <rect class="paperbk" x="62" y="322" width="104" height="14"/>
+  <text class="lb accent" x="66" y="332">{t("archProgram")}</text>
+
+  <!-- sig_out below signature chain -->
+  <path class="arr-line" d="M875 342 L875 540" marker-end={`url(#${uid}-arr)`}/>
+  <text class="nm" x="885" y="536">{t("archSigOut")}</text>
+  </g>
+
+  <!-- ============ ports: labels fully outside the group ============ -->
+  <!-- group edges (post-translate): left x=180, right x=1260 -->
+  <text class="nm" x="10" y="428">{t("archReqA")}</text>
+  <text class="nm" x="10" y="442">{t("archReqB")}</text>
+  <line class="arr-line" x1="10" y1="452" x2="234" y2="452" marker-end={`url(#${uid}-arr)`}/>
+
+  <text class="nm" x="1390" y="428" text-anchor="end">{t("archRdataA")}</text>
+  <text class="nm" x="1390" y="442" text-anchor="end">{t("archRdataB")}</text>
+  <line class="arr-line" x1="1175" y1="460" x2="1390" y2="460" marker-end={`url(#${uid}-arr)`}/>
+
+  <text class="nm" x="1390" y="300" text-anchor="end">{t("archSigIn")}</text>
+  <line class="arr-line" x1="1390" y1="316" x2="1064" y2="316" marker-end={`url(#${uid}-arr)`}/>
+</svg>
+</div>

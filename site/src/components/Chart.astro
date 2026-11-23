@@ -1,0 +1,120 @@
+---
+import { data } from "../lib/data";
+import { t, dict } from "../i18n";
+import { chartSvg, chartRows, MIXES, RS, KS, DEFAULT_SEL, SERIES } from "../lib/repairChart";
+
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+if (id !== "repair-rate") throw new Error(`Chart: unknown id "${id}"`);
+
+const p = data.protocol;
+// embed only what the chart can select: S fixed at 2, the seven displayed algorithms.
+// The embedded copy stores percent arrays (aligned to defect_range) to keep the page light.
+const slimSeries = Object.fromEntries(
+  Object.entries(p.series)
+    .filter(([key]) => {
+      const parts = key.split(",");
+      return parts[2] === "2" && SERIES.some((s) => s.algo === parts[4]);
+    })
+    .map(([key, v]) => [
+      key,
+      { trials: v.trials, rate: p.defect_range.map((d) => +((v.rate as Record<string, number>)[String(d)]! * 100).toFixed(3)) },
+    ]),
+);
+const pdata = { ...p, series: slimSeries };
+const inner = chartSvg(pdata, DEFAULT_SEL, {
+  title: t("chartTitle"),
+  x: t("chartXLabel"),
+  y: t("chartYLabel"),
+  guide: t("guide90"),
+});
+const fallback = chartRows(pdata, DEFAULT_SEL);
+const defects = pdata.defect_range;
+const payload = JSON.stringify({ data: pdata, defaults: DEFAULT_SEL, strings: {
+  x: t("chartXLabel"), y: t("chartYLabel"), guide: t("guide90"), mixLabel: t("mixLabel"),
+  rLabel: t("rLabel"), kLabel: t("kLabel"), title: t("chartTitle"), defectsLabel: t("defectsLabel"),
+}, series: SERIES });
+---
+<div class="chartblock" id={`${id}`}>
+  <form class="chart-controls" aria-label={t("chartTitle")}>
+    <label>{t("mixLabel")}
+      <select id={`${id}-mix`}>
+        {MIXES.map((m) => <option value={m} selected={m === DEFAULT_SEL.mix}>{(dict().mixNames as Record<string, string>)[m] ?? m} ({m})</option>)}
+      </select>
+    </label>
+    <label>{t("rLabel")}
+      <select id={`${id}-r`}>
+        {RS.map((r) => <option value={r} selected={r === DEFAULT_SEL.r}>{r}</option>)}
+      </select>
+    </label>
+    <label>{t("kLabel")}
+      <select id={`${id}-k`}>
+        {KS.map((k) => <option value={k} selected={k === DEFAULT_SEL.k}>{k}</option>)}
+      </select>
+    </label>
+  </form>
+  <svg
+    id={`${id}-svg`}
+    viewBox="0 0 740 400"
+    role="img"
+    aria-label={t("chartTitle")}
+    class="chart"
+    data-config={payload}
+  >
+    <title>{t("chartTitle")}</title>
+    <Fragment set:html={inner} />
+  </svg>
+  <details class="chart-data">
+    <summary>{t("chartData")} — {DEFAULT_SEL.mix}, R={DEFAULT_SEL.r}, K={DEFAULT_SEL.k}</summary>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>series</th>{defects.map((d) => <th class="numcol">{d}</th>)}</tr>
+        </thead>
+        <tbody>
+          {fallback.map((r) => (
+            <tr><td>{r.algo}</td>{r.cells.map((c) => <td class="numcol">{c === null ? "—" : c.toFixed(1)}</td>)}</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+</div>
+<script>
+  import { chartSvg } from "../lib/repairChart";
+  function init(id: string) {
+    const svg = document.getElementById(id + "-svg");
+    if (!svg) return;
+    const cfg = JSON.parse(svg.getAttribute("data-config")!);
+    const mix = document.getElementById(id + "-mix") as HTMLSelectElement;
+    const r = document.getElementById(id + "-r") as HTMLSelectElement;
+    const k = document.getElementById(id + "-k") as HTMLSelectElement;
+    const setIfValid = (el: HTMLSelectElement, v: string) => {
+      if ([...el.options].some((o) => o.value === v)) el.value = v;
+    };
+    function applyHash() {
+      const m = location.hash.match(/[?&](mix|r|k)=([^&#]+)/g);
+      if (!m) return;
+      for (const pair of m) {
+        const parts = pair.slice(1).split("=");
+        const key = parts[0] ?? "";
+        const v = parts[1] ?? "";
+        if (key === "mix") setIfValid(mix, v);
+        if (key === "r") setIfValid(r, v);
+        if (key === "k") setIfValid(k, v);
+      }
+    }
+    function render() {
+      const sel = { mix: mix.value, r: Number(r.value), k: Number(k.value) };
+      svg!.innerHTML = chartSvg(cfg.data, sel, cfg.strings);
+      history.replaceState(null, "", `#${id}?mix=${sel.mix}&r=${sel.r}&k=${sel.k}`);
+    }
+    applyHash();
+    render();
+    for (const el of [mix, r, k]) el.addEventListener("change", render);
+    window.addEventListener("hashchange", () => { applyHash(); render(); });
+  }
+  init("repair-rate");
+</script>

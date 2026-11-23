@@ -1,0 +1,16 @@
+---
+title: "Limitations"
+kicker: "LIMITS"
+order: 13
+id: limitations
+---
+- No silicon. Every result is simulation, static analysis or layout.
+- The memory is small (256 words). Repair logic that is modest for a megabit array dominates here.
+- The macro's timing model has one corner and is analytical, so the reported clock mainly reflects the
+  wrapper logic.
+- Partitions are tested one at a time, so coupling faults between partitions and address-decoder faults
+  only show in the final verification pass, which reports failure instead of re-analysing.
+- Spare words are flip-flops and are assumed fault-free.
+- The defect mixes are assumptions; results are reported per mix because they depend on it.
+- Soft-error rates are assumed, and multi-bit upsets are not modelled.
+- The ECC-first baselines were built from published descriptions, without the full papers.

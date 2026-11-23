@@ -13,6 +13,7 @@ mkdir -p "$DST/build"
 done
 rsync -rlt --delete --chmod=D755,F644 \
   --exclude '.git/' --exclude 'build/' --exclude 'runs/' --exclude '__pycache__/' --exclude '.pytest_cache/' --exclude 'sim_build/' \
+  --exclude 'site/node_modules/' --exclude 'site/dist/' --exclude 'site/.astro/' --exclude 'site/.screens/' \
   "$SRC"/ "$DST"/
 chmod +x "$DST"/tools/*.sh "$DST"/tools/bin/* "$DST"/tools/setup/*.sh 2>/dev/null || true
 printf '%s\n' "$SRC" > "$DST/build/.src_path"

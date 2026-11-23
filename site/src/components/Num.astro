@@ -1,0 +1,14 @@
+---
+import { get } from "../lib/data";
+import { fmt } from "../i18n";
+
+interface Props {
+  k: string;
+  digits?: number;
+  unit?: string;
+}
+const { k, digits = 0, unit } = Astro.props;
+const v = get(k);
+if (typeof v !== "number") throw new Error(`Num: "${k}" is ${JSON.stringify(v)}, not a number`);
+---
+<span class="num">{fmt(v, digits)}{unit ? `\u00a0${unit}` : ""}</span>

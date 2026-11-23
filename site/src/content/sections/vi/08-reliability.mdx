@@ -1,0 +1,18 @@
+---
+title: "Cái giá về độ tin cậy khi sửa bằng ECC"
+kicker: "ĐỘ TIN CẬY"
+order: 8
+id: reliability
+---
+Một từ dựa vào ECC cho lỗi cứng sẽ không còn gì để chống lỗi mềm: một upset ở 29 bit còn lại trở thành
+lỗi không sửa được, có phát hiện. Mô hình chỉ tính upset đơn bit và giả định 1000 FIT mỗi megabit, vì
+chưa có số đo lỗi mềm cho macro này; kết quả tỉ lệ theo giả định đó.
+
+<DataTable id="fit-constants" />
+
+<DataTable id="fit" />
+
+Chi phí tuyến tính theo số từ phụ thuộc ECC, nên ngân sách K là trần cứng của nó. Trên cùng các die, bộ
+phân bổ đồng thời dùng ít từ ECC hơn nhiều so với sơ đồ ECC-trước khi ít khuyết tật, và lái cột theo phân
+vùng giảm con số này thêm nữa. Các baseline ECC-trước dựng theo mô tả đã công bố của EBISR ở mức đại ý,
+chưa đối chiếu toàn văn bài báo.

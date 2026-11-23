@@ -1,0 +1,21 @@
+---
+title: "Phương án sửa được chọn như thế nào"
+kicker: "THUẬT TOÁN"
+order: 4
+id: allocation
+---
+Không gian địa chỉ được chia thành 16 phân vùng, mỗi phân vùng 16 từ. Với từng phân vùng, bộ điều khiển
+chạy March C- trên 32 bit thô và chỉ giữ bitmap các ô lỗi của phân vùng đó. Với hai cột dự phòng, có tối
+đa 466 cách chọn bit mã mà chúng thay thế, nên phần cứng thử lần lượt tất cả. Với mỗi cách chọn, từ còn
+từ hai bit lỗi trở lên bắt buộc phải dùng từ dự phòng, còn từ còn đúng một bit lỗi được giao cho ECC trừ
+khi còn từ dự phòng trống. Kết quả là, với mỗi phân vùng, số từ phụ thuộc ECC nhỏ nhất ứng với từng phần
+từ dự phòng được chia.
+
+Sau đó một phép quy hoạch động nhỏ chia từ dự phòng cho các phân vùng sao cho tổng số từ phụ thuộc ECC là
+nhỏ nhất. Bộ nhớ sửa được nếu tổng này không vượt ngân sách K. Lượt thứ hai nạp bảng lái cột và từ dự
+phòng; lượt thứ ba chạy March C- trên toàn bộ nhớ qua đường dữ liệu đã sửa.
+
+<RepairStepper />
+
+Lỗi ở chính các cột dự phòng cũng nằm trong bitmap, nên ô dự phòng hỏng không bao giờ được chọn ở nơi cần
+dùng. Bộ lưu lỗi là bitmap của một phân vùng nên không thể tràn.

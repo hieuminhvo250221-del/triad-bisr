@@ -1,0 +1,4 @@
+corner,setup_slack_ns,hold_slack_ns
+min,3.16,0.11
+nom,2.53,0.10
+max,1.95,0.10

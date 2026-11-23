@@ -1,0 +1,4 @@
+check,violations,limit,worst
+max_slew,200,0.75,1.33
+max_fanout,1705,10,43
+max_cap,0,,

@@ -114,3 +114,16 @@ cd model && python -m triad.mc --preset protocol --mixes kang_dl --trials 10000 
 - Every number in the paper/slides must come from a script under version control and a file in `results/`.
 - Honest reporting: never claim sign-off results that were not produced by a logged run.
 - Git: commit at milestones, do not push.  Docs for the user are in Vietnamese; code, paper and slides in English.
+
+## Website (site/)
+
+- `site/` is an Astro static project (GitHub Pages, base `/triad-bisr/`, English at `/`, Vietnamese at `/vi/`).
+- `python tools/site_data.py` regenerates `site/src/data/generated/*.json` from `results/` and copies the
+  layout image into `site/public/assets/`; add `--check` to print the extracted ASIC values for review.
+- Which run the site shows is controlled by the single line in `results/asic/CURRENT`.
+- From `site/`: `npm run data`, `npm run dev` (preview), `npm run build` (data + astro check + build),
+  `npm run screens` (Playwright screenshots into `site/.screens/`).
+- Sections are MDX files under `site/src/content/sections/{en,vi}/`; frontmatter `order` sets numbering and
+  nav, `id` must match across languages. Every number goes through generated JSON — see `site/README.md`.
+- Deploy: `.github/workflows/pages.yml` on pushes to `main` touching `site/**`, `results/**`, or
+  `tools/site_data.py`.

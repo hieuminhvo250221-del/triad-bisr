@@ -1,0 +1,11 @@
+---
+title: "TRIAD-BISR"
+tagline: "MBIST · BIRA · BISR · SEC-DED ECC · SKY130 · OPENRAM · RTL-TO-GDS"
+heading: "A self-testing, self-repairing SRAM that decides how much ECC to spend on hard faults"
+figureCaption: "triad_bisr_top after routing. The OpenRAM macro is the block on the left; the rest is the test, analysis and repair logic."
+---
+An embedded 256-word SRAM built around an unmodified OpenRAM macro on SkyWater sky130. After a start
+pulse it tests itself, works out an exact repair from three resources (spare words, spare columns that
+can be steered differently in each address partition, and a programmable number of words left to the
+error-correcting code), programs the repair and verifies it. The design is taken from RTL to GDS with
+open-source tools; the layout still has open sign-off items, listed below.

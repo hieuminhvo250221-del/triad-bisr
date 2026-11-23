@@ -1,0 +1,21 @@
+---
+title: "Kiến trúc"
+kicker: "HỆ THỐNG"
+order: 3
+id: architecture
+---
+Macro lưu 32 bit mỗi từ. Bit 0 đến 29 chứa từ mã Hsiao SEC-DED (24 bit dữ liệu và 6 bit kiểm tra); bit 30
+và 31 là hai cột dự phòng. Từ dự phòng là các thanh ghi flip-flop ở lớp vỏ, chọn bằng so sánh địa chỉ.
+Bên trong macro không bị thay đổi gì.
+
+<ArchDiagram />
+
+Khi ghi, dữ liệu được mã hoá, các bit do bảng lái cột của phân vùng chỉ định được chép sang cột dự phòng,
+rồi 32 bit được đưa vào macro. Khi đọc, mạch lái ngược lại, thay bằng từ dự phòng nếu địa chỉ khớp, rồi
+giải mã. Macro xuất dữ liệu ở sườn xuống của clock, nên lái cột, chọn từ dự phòng và giải mã ECC cùng
+chia nhau nửa chu kỳ còn lại trước thanh ghi đầu ra.
+
+<DataTable id="modules" />
+
+Sky130 không có eFuse nên đây là sửa mềm. Một cổng nối tiếp dịch trạng thái sửa ra ngoài sau khi kiểm tra
+và nạp lại sau reset, nhờ đó không phải chạy lại phép kiểm tra mỗi lần cấp nguồn.

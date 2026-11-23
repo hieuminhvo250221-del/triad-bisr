@@ -1,0 +1,109 @@
+---
+import { data } from "../lib/data";
+import { t } from "../i18n";
+import { traceSVG, stepIds, stepCaption, SVG_W, SVG_H, type StepText } from "../lib/repairTrace";
+
+const cfg = data.traces.cfg;
+const scenarios = data.traces.scenarios;
+const scNames: Record<string, string> = {
+  cells: t("scenCells"), bitline: t("scenBitline"), mixed: t("scenMixed"),
+  "bad-spare": t("scenBadSpare"), unrepairable: t("scenUnrep"),
+};
+const S: StepText = {
+  scode: t("stepScode"), sspare: t("stepSspare"), words: t("stepWords"),
+  cap0: t("cap0"), cap1: t("cap1"), cap2: t("cap2"), cap3: t("cap3"),
+  capOk: t("capOk"), capBad: t("capBad"),
+  capVerdictOk: t("capVerdictOk"), capVerdictBad: t("capVerdictBad"),
+  legFault: t("legFault"), legSteered: t("legSteered"), legSpare: t("legSpare"),
+  legEcc: t("legEcc"), legCol: t("legCol"),
+};
+const sc0 = scenarios.find((s) => s.id === "mixed") ?? scenarios[0]!;
+const inner = traceSVG(sc0, cfg, 0, S);
+const ui = { stepOf: t("stepOfLabel"), scNames, pass: t("statusOk"), open: t("statusWarn") };
+---
+<div class="stepper" id="repair-walk" data-stepper
+     data-i18n={JSON.stringify(S)} data-ui={JSON.stringify(ui)}>
+  <script type="application/json" class="trace-data" is:inline set:html={JSON.stringify({ cfg, scenarios })} />
+  <div class="stepper-ctl">
+    <label>{t("stepScenario")}
+      <select class="sc-sel">
+        {scenarios.map((s) => <option value={s.id} selected={s.id === sc0.id}>{scNames[s.id] ?? s.id}</option>)}
+      </select>
+    </label>
+    <span class="stepper-btns">
+      <button type="button" class="sprev" disabled>{t("stepPrev")}</button>
+      <button type="button" class="snext">{t("stepNext")}</button>
+    </span>
+    <span class="sprog mono">{t("stepOfLabel").replace("{n}", "1").replace("{m}", String(stepIds(sc0).length))}</span>
+  </div>
+  <p class="scap" aria-live="polite">
+    <span class="sbadge" hidden></span>
+    <span class="scaptxt">{stepCaption(sc0, 0, S)}</span>
+  </p>
+  <div class="stepgrid" tabindex="0" role="region" aria-label="repair stepper">
+    <svg class="stepsvg" viewBox={`0 0 ${SVG_W} ${SVG_H}`} role="img" set:html={inner} />
+  </div>
+</div>
+<script>
+  import { traceSVG, stepIds, stepCaption, SVG_W, SVG_H, type Scenario, type Cfg, type StepText } from "../lib/repairTrace";
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-stepper]")) {
+    const S = JSON.parse(root.dataset.i18n!) as StepText;
+    const ui = JSON.parse(root.dataset.ui!) as {
+      stepOf: string; scNames: Record<string, string>; pass: string; open: string;
+    };
+    const blob = JSON.parse(root.querySelector(".trace-data")!.textContent!) as { cfg: Cfg; scenarios: Scenario[] };
+    const { scenarios } = blob;
+    const sel = root.querySelector<HTMLSelectElement>(".sc-sel")!;
+    const prev = root.querySelector<HTMLButtonElement>(".sprev")!;
+    const next = root.querySelector<HTMLButtonElement>(".snext")!;
+    const prog = root.querySelector<HTMLElement>(".sprog")!;
+    const cap = root.querySelector<HTMLElement>(".scaptxt")!;
+    const badge = root.querySelector<HTMLElement>(".sbadge")!;
+    const svg = root.querySelector<SVGSVGElement>(".stepsvg")!;
+
+    let sc = scenarios.find((s) => s.id === "mixed") ?? scenarios[0]!;
+    let pos = 0;
+
+    function applyHash() {
+      const m = location.hash.match(/repair-walk\?(.+)/);
+      if (!m) return;
+      const q = new URLSearchParams(m[1]);
+      const sid = q.get("s"), p = Number(q.get("p") ?? 0);
+      const f = scenarios.find((s) => s.id === sid);
+      if (f) { sc = f; sel.value = f.id; }
+      if (Number.isFinite(p)) pos = p;
+    }
+    function writeHash() {
+      history.replaceState(null, "", `#repair-walk?s=${sc.id}&p=${pos}`);
+    }
+    function render() {
+      const steps = stepIds(sc);
+      pos = Math.max(0, Math.min(pos, steps.length - 1));
+      const step = steps[pos]!;
+      svg.innerHTML = traceSVG(sc, blob.cfg, step, S);
+      cap.textContent = stepCaption(sc, step, S);
+      prog.textContent = ui.stepOf.replace("{n}", String(pos + 1)).replace("{m}", String(steps.length));
+      if (step === steps[steps.length - 1] && steps.length > 1 || step === 4) {
+        badge.hidden = false;
+        badge.className = `sbadge ${sc.repairable ? "sok" : "swarn"}`;
+        badge.textContent = sc.repairable ? ui.pass : ui.open;
+      } else {
+        badge.hidden = true;
+      }
+      prev.disabled = pos === 0;
+      next.disabled = pos === steps.length - 1;
+      writeHash();
+    }
+    sel.addEventListener("change", () => {
+      sc = scenarios.find((s) => s.id === sel.value) ?? sc;
+      pos = 0; render();
+    });
+    prev.addEventListener("click", () => { pos--; render(); });
+    next.addEventListener("click", () => { pos++; render(); });
+    applyHash();
+    if (stepIds(sc)[pos] !== 0 || sc.id !== "mixed") render();
+    else { prev.disabled = true; prog.textContent = ui.stepOf.replace("{n}", "1").replace("{m}", String(stepIds(sc).length)); }
+    void SVG_W; void SVG_H;
+  }
+</script>

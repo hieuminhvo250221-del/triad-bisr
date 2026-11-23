@@ -1,0 +1,11 @@
+---
+import { t } from "../i18n";
+
+interface Props {
+  level: "ok" | "warn" | "pend";
+  note?: string;
+}
+const { level, note } = Astro.props;
+const word = level === "ok" ? t("statusOk") : level === "warn" ? t("statusWarn") : t("statusPend");
+---
+<span class={`status status-${level}`}><span class="status-dot" aria-hidden="true"></span><span class="status-word">{word}</span>{note ? <span class="status-note"> — {note}</span> : null}</span>

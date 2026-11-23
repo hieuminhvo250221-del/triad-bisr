@@ -1,0 +1,333 @@
+---
+import { data, get } from "../lib/data";
+import { t, fmt, getLang, dict } from "../i18n";
+import Status from "./Status.astro";
+
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const lang = getLang();
+const L = dict();
+const a = data.asic;
+// hard-fail the build if any consumed asic key is missing
+for (const k of ["DIEAREA_mm^2", "CoreArea_um^2", "synth_cell_count",
+  "tritonRoute_violations", "Magic_violations", "lvs_total_errors",
+  "pin_antenna_violations", "wire_length", "vias", "suggested_clock_period",
+  "suggested_clock_frequency", "OpenDP_Util", "critical_path_ns",
+  "drc_gds_total", "power_total_w", "sta_checks", "timing_corners"]) {
+  get(`asic.${k}`);
+}
+
+type Level = "ok" | "warn" | "pend";
+const ok0 = (n: number): Level => (n === 0 ? "ok" : "warn");
+const fd = (v: number | null | undefined, d = 1) => (v == null ? "—" : fmt(v, d));
+const pick = (c: { en: string; vi: string }) => (lang === "vi" ? c.vi : c.en);
+
+/* ---------- table data ---------- */
+interface Cell { v: string | number | null; cls?: string; note?: string | undefined; status?: Level; mono?: boolean; sub?: string }
+interface Row { cells: Cell[]; head?: boolean }
+interface Tbl { caption: string; cols: string[]; rows: Row[]; kv?: boolean; note?: string; head2?: { label: string; span: number }[]; fixed?: boolean }
+
+const mixName = (m: string) => (L.mixNames as Record<string, string>)[m] ?? m;
+
+function tbl(): Tbl {
+  switch (id) {
+    case "specs": {
+      const r = (label: string, v: string): Row => ({ cells: [{ v: label }, { v, cls: "numcol", mono: true }] });
+      const V = L.specsVals;
+      return {
+        kv: true, caption: t("specsCaption"), cols: [],
+        rows: [
+          r(t("specsMemory"), V[0]!),
+          r(t("specsWord"), V[1]!),
+          r(t("specsResources"), V[2]!),
+          r(t("specsPartitions"), V[3]!),
+          r(t("specsTest"), V[4]!),
+          r(t("specsMacro"), V[5]!),
+          r(t("specsPdk"), V[6]!),
+          r(t("specsFlow"), V[7]!),
+          r(t("specsClock"), `${fmt(a.suggested_clock_period)} ns (${fmt(a.suggested_clock_frequency)} MHz)`),
+          r(t("specsDie"), `${fmt(a["DIEAREA_mm^2"], 3)} mm²`),
+          r(t("specsCells"), fmt(a.synth_cell_count)),
+        ],
+      };
+    }
+    case "prior-art":
+    case "modules":
+    case "theorems": {
+      const st = data.static;
+      if (!st.available) throw new Error("static tables missing");
+      const tab = (st.tables as any)[id];
+      const mono0 = id === "modules" || id === "theorems";
+      return {
+        caption: pick(tab.caption),
+        cols: tab.columns.map(pick),
+        rows: tab.rows.map((row: any) => ({
+          cells: row.map((c: any, i: number) => ({
+            v: pick(c), mono: i === 0 && mono0,
+          })),
+        })),
+      };
+    }
+    case "gates":
+      return {
+        caption: t("gatesCaption"),
+        cols: [t("gatesGate"), t("gatesCommand"), t("gatesResult"), t("gatesStatus")],
+        rows: data.verification.gates.map((g) => ({
+          cells: [
+            { v: g.name }, { v: g.command, mono: true }, { v: g.result },
+            { v: "", status: g.status === "ok" ? "ok" : g.status === "warn" ? "warn" : "pend" },
+          ],
+        })),
+      };
+    case "signoff": {
+      const staChecks = get("asic.sta_checks") as typeof a.sta_checks;
+      const slews = Object.fromEntries(staChecks.map((c) => [c.check, c])) as
+        Record<string, { violations: number; limit: number | null; worst: number | null }>;
+      const worstSetup = Math.min(...a.timing_corners.map((c) => c.setup_slack_ns));
+      const allSlack = a.timing_corners.every((c) => c.setup_slack_ns >= 0 && c.hold_slack_ns >= 0);
+      const row = (label: string, value: string | number, level: Level,
+                   limit?: string | number, worst?: string | number, note?: string): Row => ({
+        cells: [{ v: label, note }, { v: value, cls: "numcol" },
+                { v: limit ?? "—", cls: "numcol" }, { v: worst ?? "—", cls: "numcol" },
+                { v: "", status: level }],
+      });
+      return {
+        caption: t("signoffCaption"),
+        cols: [t("signoffCheck"), t("signoffValue"), t("signoffLimit"), t("signoffWorst"), t("signoffStatus")],
+        rows: [
+          row(t("signoffRowRoute"), a.tritonRoute_violations, ok0(a.tritonRoute_violations)),
+          row(t("signoffRowLvs"), a.lvs_total_errors, ok0(a.lvs_total_errors)),
+          row(t("signoffRowTiming"), `${worstSetup.toFixed(2)} ns`, allSlack ? "ok" : "warn"),
+          row(t("signoffRowDrc"), a.drc_gds_total, ok0(a.drc_gds_total)),
+          row(t("signoffRowMagic"), a.Magic_violations, "warn", "—", "—", t("magicNote")),
+          row(t("signoffRowAntenna"), a.pin_antenna_violations, ok0(a.pin_antenna_violations)),
+          row(t("signoffRowSlew"), slews.max_slew!.violations, ok0(slews.max_slew!.violations), slews.max_slew!.limit ?? "—", slews.max_slew!.worst ?? "—"),
+          row(t("signoffRowFanout"), slews.max_fanout!.violations, ok0(slews.max_fanout!.violations), slews.max_fanout!.limit ?? "—", slews.max_fanout!.worst ?? "—"),
+          row(t("signoffRowCap"), slews.max_cap!.violations, ok0(slews.max_cap!.violations)),
+        ],
+      };
+    }
+    case "timing":
+      return {
+        caption: t("timingCaption").replace("{period}", String(a.suggested_clock_period)),
+        cols: [t("timingCorner"), t("timingSetup"), t("timingHold"), t("signoffStatus")],
+        rows: a.timing_corners.map((c) => ({
+          cells: [
+            { v: `${c.corner} RC`, mono: true },
+            { v: c.setup_slack_ns.toFixed(2), cls: "numcol" },
+            { v: c.hold_slack_ns.toFixed(2), cls: "numcol" },
+            { v: "", status: c.setup_slack_ns >= 0 && c.hold_slack_ns >= 0 ? "ok" : "warn" },
+          ],
+        })),
+      };
+    case "n90": {
+      const algos: [string, string][] = [
+        ["triad_p16", "TRIAD-P, 16 partitions"], ["triad_p4", "TRIAD-P, 4 partitions"],
+        ["triad_rel", "TRIAD, no partitions (exact)"], ["ef_exact_bb", "ECC-first + buy-back"],
+        ["exact_2d", "2-D exact, no ECC"], ["esp_2d", "ESP, no ECC"],
+      ];
+      const mixes = ["date06", "mixed", "kang_dl", "kang_dh"];
+      const rows: Row[] = [];
+      for (const mix of mixes) {
+        for (const K of [0, 8]) {
+          rows.push({
+            cells: [
+              { v: `${mixName(mix)} · K = ${K}`, sub: mix },
+              ...algos.map(([algo]): Cell => {
+                const r = data.protocol.summary.find(
+                  (x) => x.mix === mix && x.R === 2 && x.S === 2 && x.K === K && x.algo === algo);
+                return { v: r ? fd(r.n90, 1) : "—", cls: "numcol" };
+              }),
+            ],
+          });
+        }
+      }
+      return {
+        caption: t("n90Caption"),
+        cols: [`${t("n90Mix")} / ${t("n90K")}`, ...algos.map(([, l]) => l)],
+        rows,
+      };
+    }
+    case "automb": {
+      const am = data.automb as { available: boolean; rows?: Record<string, Record<string, number>> };
+      if (!am.available || !am.rows) return { caption: t("autombCaption"), cols: [], rows: [{ cells: [{ v: t("pending") }] }] };
+      const amRows = am.rows;
+      const cols = ["amb_greedy_word", "amb_deferred_word", "amb_exact_word",
+                    "amb_deferred_phys", "amb_exact_phys", "triad_k8", "triad_p16_k0", "triad_p16_k8"];
+      const mixes = ["date06", "mixed", "kang_dl", "kang_dh"].filter((m) =>
+        Object.keys(amRows).some((k) => k.startsWith(m + ",")));
+      const rows: Row[] = [];
+      for (const mix of mixes) {
+        rows.push({ head: true, cells: [{ v: mixName(mix), sub: mix }] });
+        for (const d of [2, 4, 6, 8]) {
+          const cell = amRows[`${mix},${d}`];
+          if (!cell) continue;
+          rows.push({
+            cells: [
+              { v: String(d), cls: "numcol" },
+              ...cols.map((c): Cell => ({
+                v: typeof cell[c] === "number" ? fd(cell[c] * 100, 1) : "—", cls: "numcol",
+              })),
+            ],
+          });
+        }
+      }
+      return {
+        caption: t("autombCaption"),
+        cols: [t("autombDefects"), ...L.autombCols],
+        head2: [
+          { label: "", span: 1 },
+          { label: t("autombGrpAmb"), span: 5 },
+          { label: t("autombGrpTriad"), span: 3 },
+        ],
+        fixed: true,
+        rows,
+      };
+    }
+    case "fit-constants": {
+      const fc = data.reliability.fit_constants;
+      return {
+        caption: t("fitConstCaption").replace("{assumptions}", fc.assumptions),
+        cols: [t("fitConstWhat"), t("fitConstValue")],
+        rows: [
+          { cells: [{ v: t("fitConstRowMem") }, { v: fd(fc.memory_due_fit, 6), cls: "numcol" }] },
+          { cells: [{ v: t("fitConstRowWord") }, { v: fd(fc.per_word_due_fit, 5), cls: "numcol" }] },
+          { cells: [{ v: t("fitConstRowNoEcc") }, { v: fd(fc.no_ecc_sdc_fit, 3), cls: "numcol" }] },
+        ],
+      };
+    }
+    case "fit": {
+      const algos: [string, string][] = [
+        ["triad_rel", "TRIAD"], ["triad_p4", "TRIAD-P4"], ["triad_p16", "TRIAD-P16"],
+        ["ef_exact_bb", "ECC-first + buy-back"], ["ef_exact", "ECC-first, no buy-back"],
+      ];
+      const rows: Row[] = [];
+      for (const d of [4, 8, 12]) {
+        for (const [algo, label] of algos) {
+          const r = data.reliability.rows.find(
+            (x) => x.mix === "mixed" && x.R === 2 && x.S === 2 && x.K === 8 &&
+                   x.defects === d && x.algo === algo);
+          if (!r) continue;
+          rows.push({
+            cells: [
+              { v: String(d), cls: "numcol" }, { v: label, mono: true },
+              { v: fd(r.repair_rate * 100, 2), cls: "numcol" },
+              { v: fd(r.mean_ecc_words, 2), cls: "numcol" },
+              { v: r.paired_triad_ecc == null ? "—" : fd(r.paired_triad_ecc, 2), cls: "numcol" },
+              { v: fd(r.fit_due, 4), cls: "numcol" },
+            ],
+          });
+        }
+      }
+      return {
+        caption: t("fitCaption"),
+        cols: [t("fitDefects"), t("fitAlgo"), t("fitRate"), t("fitEcc"), t("fitPaired"), t("fitDue")],
+        rows,
+      };
+    }
+    case "ppa-breakdown": {
+      const mods = data.ppa.rows.filter((r) => r.pbits === 4 && r.r === 2 && r.module !== "TOTAL");
+      const tot = data.ppa.rows.find((r) => r.pbits === 4 && r.r === 2 && r.module === "TOTAL");
+      if (!tot) throw new Error("ppa: no TOTAL row for pbits=4 r=2");
+      return {
+        caption: t("ppaBreakCaption"), note: t("ppaBreakNote"),
+        cols: [t("ppaBreakModule"), t("ppaBreakArea"), t("ppaBreakCells"), t("ppaBreakFfs")],
+        rows: [
+          ...mods.map((r): Row => ({
+            cells: [{ v: r.module, mono: true }, { v: fmt(r.area_um2), cls: "numcol" },
+                    { v: fmt(r.cells), cls: "numcol" }, { v: fmt(r.ffs), cls: "numcol" }],
+          })),
+          { head: true, cells: [{ v: "TOTAL", mono: true }, { v: fmt(tot.area_um2), cls: "numcol" },
+                                { v: fmt(tot.cells), cls: "numcol" }, { v: fmt(tot.ffs), cls: "numcol" }] },
+        ],
+      };
+    }
+    case "ppa-sweep": {
+      const rows: Row[] = [];
+      for (const pb of [1, 2, 3, 4]) {
+        rows.push({ head: true, cells: [{ v: `${t("ppaSweepParts")} ${1 << pb} (${256 >> pb} words)`, mono: true }] });
+        for (const r of [1, 2, 4]) {
+          const tot = data.ppa.rows.find((x) => x.pbits === pb && x.r === r && x.module === "TOTAL");
+          if (!tot) continue;
+          rows.push({
+            cells: [
+              { v: `${1 << pb} ${t("ppaSweepParts")}`, cls: "numcol" },
+              { v: `${r} ${t("ppaSweepWords")}`, cls: "numcol" },
+              { v: fmt(tot.area_um2), cls: "numcol" },
+              { v: fmt(tot.ffs), cls: "numcol" },
+            ],
+          });
+        }
+      }
+      return {
+        caption: t("ppaSweepCaption"),
+        cols: [t("ppaSweepParts"), "R", t("ppaSweepArea"), t("ppaSweepFfs")],
+        rows,
+      };
+    }
+    case "physical": {
+      const r = (label: string, v: string, note?: string): Row => ({
+        cells: [{ v: label, note }, { v, cls: "numcol", mono: true }],
+      });
+      return {
+        kv: true, caption: t("physicalCaption"), cols: [],
+        rows: [
+          r(t("physDie"), `${fmt(a["DIEAREA_mm^2"], 3)} mm²`),
+          r(t("physCore"), `${fmt(a["CoreArea_um^2"], 0)} µm²`),
+          r(t("physUtil"), `${fmt(a.OpenDP_Util, 2)} %`),
+          r(t("physCells"), fmt(a.synth_cell_count)),
+          r(t("physWire"), `${fmt(a.wire_length / 1000, 1)} mm`),
+          r(t("physVias"), fmt(a.vias)),
+          r(t("physPower"), `${fmt(a.power_total_w * 1000, 1)} mW`, t("physPowerNote")),
+          r(t("physCrit"), `${fmt(a.critical_path_ns, 2)} ns`),
+        ],
+      };
+    }
+    default:
+      throw new Error(`DataTable: unknown id "${id}"`);
+  }
+}
+
+const T = tbl();
+---
+<div class="tablewrap" tabindex="0" role="region" aria-label={T.caption}>
+  <table class={`${T.kv ? "kv " : ""}${T.fixed ? "fixed" : ""}`.trim() || undefined}>
+    {T.fixed && T.cols.length ? (
+      <colgroup>
+        <col style="width:56px" />
+        {T.cols.slice(1).map(() => <col />)}
+      </colgroup>
+    ) : null}
+    <caption>{T.caption}</caption>
+    {T.cols.length ? (
+      <thead>
+        {T.head2 ? (
+          <tr class="grp">
+            {T.head2.map((g) => <th colspan={g.span} scope="colgroup">{g.label}</th>)}
+          </tr>
+        ) : null}
+        <tr>{T.cols.map((c, i) => <th class={i > 0 ? "numcol" : ""} scope="col">{c}</th>)}</tr>
+      </thead>
+    ) : null}
+    <tbody>
+      {T.rows.map((r) =>
+        r.head ? (
+          <tr class="grouphead"><td colspan={Math.max(T.cols.length, 9)}>{r.cells[0]!.v}{r.cells[0]!.sub ? <> <span class="mixid mono muted">{r.cells[0]!.sub}</span></> : null}</td></tr>
+        ) : (
+          <tr>
+            {r.cells.map((c, i) =>
+              T.kv && i === 0 ? (
+                <th scope="row">{c.v}{c.note ? <span class="muted"> — {c.note}</span> : null}</th>
+              ) : (
+                <td class={c.cls}>{c.mono ? <span class="mono" translate="no">{c.v}</span> : c.v}{c.sub ? <> <span class="mixid mono muted">{c.sub}</span></> : null}{c.note ? <span class="muted"> — {c.note}</span> : null}{c.status ? <Status level={c.status} /> : null}</td>
+              ),
+            )}
+          </tr>
+        ),
+      )}
+    </tbody>
+  </table>
+  {T.note ? <p class="tablenote muted">{T.note}</p> : null}
+</div>

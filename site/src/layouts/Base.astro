@@ -1,0 +1,73 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import { setLang, t, type Lang } from "../i18n";
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description?: string;
+  links: { id: string; label: string; num: string }[];
+}
+const { lang, title, description, links } = Astro.props;
+setLang(lang);
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const home = lang === "vi" ? `${base}/vi/` : `${base}/`;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fbfaf6" />
+    <title>{title}</title>
+    {description ? <meta name="description" content={description} /> : null}
+    <link rel="alternate" hreflang="en" href={`https://hieuminhvo250221-del.github.io${base}/`} />
+    <link rel="alternate" hreflang="vi" href={`https://hieuminhvo250221-del.github.io${base}/vi/`} />
+  </head>
+  <body>
+    <Header lang={lang} links={links} />
+    <div class="pagegrid">
+      <aside class="rail" aria-label={t("nav")}>
+        <nav>
+          <ol class="rail-list">
+            {links.map((l) => (
+              <li><a href={`${home}#${l.id}`} data-rail={l.id}>
+                <span class="navnum">{l.num}</span> {l.label}
+              </a></li>
+            ))}
+          </ol>
+        </nav>
+      </aside>
+      <main id="main">
+        <slot />
+      </main>
+    </div>
+    <footer class="site-footer">
+      <div class="wrap">
+        <span translate="no">TRIAD-BISR</span> — {t("footerText")}
+      </div>
+    </footer>
+    <script>
+      // left rail: mark the section currently in view
+      const railLinks = [...document.querySelectorAll<HTMLAnchorElement>("[data-rail]")];
+      const byId = new Map(railLinks.map((a) => [a.dataset.rail!, a]));
+      const secs = railLinks
+        .map((a) => document.getElementById(a.dataset.rail!))
+        .filter((s): s is HTMLElement => !!s);
+      let current: HTMLElement | null = null;
+      const mark = (id: string | null) => {
+        for (const a of railLinks) a.removeAttribute("aria-current");
+        if (id) byId.get(id)?.setAttribute("aria-current", "true");
+      };
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) if (e.isIntersecting) current = e.target as HTMLElement;
+          mark(current?.id ?? null);
+        },
+        { rootMargin: "-30% 0px -60% 0px" },
+      );
+      secs.forEach((s) => io.observe(s));
+    </script>
+  </body>
+</html>

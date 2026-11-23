@@ -1,0 +1,18 @@
+---
+title: "Trạng thái sign-off"
+kicker: "SIGN-OFF"
+order: 11
+id: signoff
+---
+Layout chưa sạch sign-off. Định tuyến, LVS, timing và kiểm tra luật thiết kế trên GDS cuối đều đạt. Còn
+mở một vi phạm antenna cùng các kiểm tra slew tối đa và fanout tối đa.
+
+<DataTable id="signoff" />
+
+<DataTable id="timing" />
+
+Các vi phạm slew nằm trên những net được gắn diode chống antenna sau bước đệm cuối cùng của luồng, nên tải
+thêm vào không bao giờ được đệm lại; nâng biên đệm đủ lớn để hấp thụ nó thì công cụ bị treo. Antenna và
+slew đánh đổi nhau giữa các lần chạy. Phép kiểm tra luật thiết kế coi macro là IP đã kiểm chứng và không
+xét bên trong. 163 lỗi của phép kiểm tra mặc định trong luồng đều thuộc một luật tap n-well, và một thiết
+kế thử nhỏ chỉ tái hiện lỗi này khi cell được đọc ở dạng trừu tượng.

@@ -1,0 +1,18 @@
+---
+title: "Sign-off status"
+kicker: "SIGN-OFF"
+order: 11
+id: signoff
+---
+The layout is not sign-off clean. Routing, LVS, timing and the design-rule check of the final GDS pass.
+One antenna violation and the maximum-slew and maximum-fanout checks remain open.
+
+<DataTable id="signoff" />
+
+<DataTable id="timing" />
+
+The slew violations sit on nets that received antenna diodes after the last buffering step of the flow,
+so the added load is never re-buffered; raising the buffering margin far enough to absorb it made the
+tool hang. Antenna and slew trade against each other across runs. The design-rule check treats the macro
+as verified IP and does not look inside it. The 163 errors of the flow's default check are all one
+n-well tap rule, which a small test design reproduces only when cells are read as abstract views.

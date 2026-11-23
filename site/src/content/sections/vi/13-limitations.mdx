@@ -1,0 +1,16 @@
+---
+title: "Giới hạn"
+kicker: "GIỚI HẠN"
+order: 13
+id: limitations
+---
+- Chưa có silicon. Mọi kết quả là mô phỏng, phân tích tĩnh hoặc layout.
+- Bộ nhớ nhỏ (256 từ). Logic sửa lỗi vốn khiêm tốn với mảng megabit lại chiếm phần lớn ở đây.
+- Mô hình timing của macro chỉ có một góc và là mô hình giải tích, nên tần số báo cáo chủ yếu phản ánh
+  logic lớp vỏ.
+- Các phân vùng được kiểm tra lần lượt, nên lỗi ghép cặp giữa các phân vùng và lỗi bộ giải mã địa chỉ chỉ
+  lộ ra ở lượt kiểm tra cuối, và khi đó mạch báo thất bại chứ không phân tích lại.
+- Từ dự phòng là flip-flop và được coi là không lỗi.
+- Các hỗn hợp khuyết tật là giả định; kết quả được báo theo từng hỗn hợp vì phụ thuộc vào nó.
+- Tỉ lệ lỗi mềm là giả định, và upset nhiều bit chưa được mô hình hoá.
+- Các baseline ECC-trước được dựng từ mô tả đã công bố, không có toàn văn bài báo.

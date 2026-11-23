@@ -1,0 +1,11 @@
+---
+title: "TRIAD-BISR"
+tagline: "MBIST · BIRA · BISR · SEC-DED ECC · SKY130 · OPENRAM · RTL-TO-GDS"
+heading: "Bộ nhớ SRAM tự kiểm tra, tự sửa lỗi, tự quyết định dùng bao nhiêu ECC cho lỗi cứng"
+figureCaption: "triad_bisr_top sau định tuyến. Macro OpenRAM là khối bên trái; phần còn lại là logic kiểm tra, phân tích và sửa lỗi."
+---
+Một bộ nhớ SRAM nhúng 256 từ xây quanh macro OpenRAM nguyên bản trên SkyWater sky130. Sau một xung khởi
+động, mạch tự kiểm tra, tính ra phương án sửa chính xác từ ba loại tài nguyên (từ dự phòng, cột dự phòng
+có thể lái khác nhau ở từng phân vùng địa chỉ, và một số từ lập trình được giao cho mã sửa lỗi), nạp
+phương án sửa rồi kiểm tra lại. Thiết kế đi từ RTL tới GDS bằng công cụ mã nguồn mở; layout vẫn còn một số
+hạng mục sign-off chưa đóng, liệt kê bên dưới.

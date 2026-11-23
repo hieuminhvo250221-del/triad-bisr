@@ -1,0 +1,93 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCollection, getEntry, render } from "astro:content";
+import { data, gateResult, get, num } from "../lib/data";
+import { fmt, setLang, t, type Lang } from "../i18n";
+import { mdxComponents } from "./mdx";
+import Stat from "./Stat.astro";
+import StatRow from "./StatRow.astro";
+import Figure from "./Figure.astro";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+setLang(lang);
+
+const hero = await getEntry("hero", lang);
+if (!hero) throw new Error(`no hero content for "${lang}"`);
+const { Content: HeroBody } = await render(hero);
+
+const all = await getCollection("sections");
+const mine = all
+  .filter((s) => s.id.startsWith(`${lang}/`))
+  .sort((a, b) => a.data.order - b.data.order);
+const otherLang: Lang = lang === "en" ? "vi" : "en";
+const other = new Set(
+  all.filter((s) => s.id.startsWith(`${otherLang}/`)).map((s) => s.data.id),
+);
+for (const s of mine) {
+  if (!other.has(s.data.id))
+    throw new Error(`section "${s.data.id}" has no ${otherLang}/ counterpart`);
+}
+// section numbers come from the sorted position, not the order field
+const links = mine.map((s, i) => ({
+  id: s.data.id,
+  label: s.data.title,
+  num: String(i + 1).padStart(2, "0"),
+}));
+const rendered = await Promise.all(
+  mine.map(async (s, i) => ({ s, num: String(i + 1).padStart(2, "0"), C: (await render(s)).Content })),
+);
+
+const sum = get("protocol.summary") as typeof data.protocol.summary;
+const find90 = (algo: string) => {
+  const r = sum.find(
+    (x) => x.mix === "mixed" && x.R === 2 && x.S === 2 && x.K === 8 && x.algo === algo,
+  );
+  if (!r) throw new Error(`protocol summary: no ${algo} mixed R2 S2 K8 row`);
+  return r.n90;
+};
+const n90 = find90("triad_p16");
+const n90e = find90("exact_2d");
+const title = `${hero.data.title} — ${hero.data.heading}`;
+---
+<Base lang={lang} title={title} description={hero.data.heading} links={links}>
+  <section class="hero">
+    <p class="tagline">{hero.data.tagline}</p>
+    <h1>{hero.data.title}</h1>
+    <p class="hero-sub">{hero.data.heading}</p>
+    <div class="lede"><HeroBody components={mdxComponents} /></div>
+    <StatRow>
+      <Stat
+        value={fmt(n90, 1)}
+        label={t("statN90")}
+        sub={`${t("statN90Sub")}: ${fmt(n90e, 1)}`}
+      />
+      <Stat value={gateResult("mutation")} label={t("statMut")} />
+      <Stat value={fmt(num("asic.DIEAREA_mm^2"), 3) + " mm²"} label={t("statDie")} />
+    </StatRow>
+    <nav class="hero-links" aria-label={t("nav")}>
+      <ol>
+        {links.map((l) => <li><a href={`#${l.id}`}><span class="navnum">{l.num}</span> {l.label}</a></li>)}
+      </ol>
+    </nav>
+    <Figure
+      src="/assets/layout.png"
+      alt={`${hero.data.title} routed layout, tag ${data.asic.tag}`}
+      width={1800}
+      height={1000}
+      caption={hero.data.figureCaption}
+    />
+  </section>
+  {rendered.map(({ s, num, C }) => (
+    <section class="section" id={s.data.id}>
+      <div class="sechead">
+        <span class="secnum">{num}</span>
+        <span class="kicker">{s.data.kicker}</span>
+      </div>
+      <h2>{s.data.title}</h2>
+      <C components={mdxComponents} />
+    </section>
+  ))}
+</Base>

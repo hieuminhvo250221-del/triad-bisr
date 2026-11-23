@@ -1,0 +1,16 @@
+---
+title: "Kiểm chứng"
+kicker: "KIỂM CHỨNG"
+order: 9
+id: verification
+---
+RTL được so với một mô hình Python đi đúng từng bước của thuật toán phần cứng, kể cả khi cột dự phòng bị
+lỗi. Mô hình này lại được so với vét cạn. Các test hệ thống tiêm lỗi stuck-at vào mô hình mô phỏng của
+macro, chạy tự sửa, rồi so kết luận, số từ ECC, các từ dự phòng và bảng lái cột với mô hình, sau đó ghi và
+đọc mọi từ qua cổng người dùng.
+
+<DataTable id="gates" />
+
+Hai dòng được cố ý đánh dấu là còn mở. Chứng minh hình thức của đường lái cột bị chặn ở 11 chu kỳ; các độ
+sâu lớn hơn không chạy xong. Mô phỏng mức cổng của netlist sau định tuyến là mô phỏng chức năng, không
+gắn trễ.

@@ -1,0 +1,22 @@
+---
+title: "How the repair is chosen"
+kicker: "ALGORITHM"
+order: 4
+id: allocation
+---
+The address space is split into 16 partitions of 16 words. For each partition the controller runs
+March C- on the raw 32 bits and keeps a bitmap of the failing cells of that partition only. With two
+spare columns there are at most 466 ways to choose which code bits they replace, so the hardware simply
+tries them. For each choice a word with two or more remaining faulty bits must take a spare word, and a
+word with exactly one is left to ECC unless a spare word is free. This gives, per partition, the smallest
+number of ECC-reliant words for every possible share of the spare words.
+
+A small dynamic programme then divides the spare words among the partitions so that the total number of
+ECC-reliant words is minimal. The memory is repairable if that total does not exceed the budget K. A
+second pass programs the steering table and the spare words; a third pass runs March C- on the whole
+memory through the repaired datapath.
+
+<RepairStepper />
+
+Faults in the spare columns themselves are part of the bitmap, so a bad spare cell is never chosen where
+it is needed. The fault store is the bitmap of one partition, so it cannot overflow.

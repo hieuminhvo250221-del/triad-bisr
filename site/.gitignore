@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.screens/
+src/data/generated/
+public/assets/layout.png
+public/chip3d/

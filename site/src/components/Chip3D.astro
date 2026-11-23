@@ -1,0 +1,73 @@
+---
+import { data } from "../lib/data";
+import { t, fmt } from "../i18n";
+
+const c = data.chip3d;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const mb = c.available ? c.payload_bytes / 1e6 : 0;
+---
+{!c.available ? (
+  <p class="muted">{t("pending")}</p>
+) : (
+<div class="chip3d" data-chip3d data-url={`${base}/chip3d/${c.tag}`}
+     data-labels={JSON.stringify({
+       shown: t("chip3dShown"), power: t("chip3dPower"), cells: t("chip3dCells"),
+       ff: t("chip3dCellsFf"), diode: t("chip3dCellsDiode"), clk: t("chip3dCellsClk"),
+       fill: t("chip3dCellsFill"), macro: t("chip3dMacroNote"),
+       grpLayers: t("chip3dGrpLayers"), grpCells: t("chip3dGrpCells"),
+       scale: t("chip3dScale"),
+     })}>
+  <div class="chip3d-stage" data-stage>
+    <img src={`${base}/assets/layout.png`} alt="layout poster" width="1800" height="1000" class="chip3d-poster" />
+    <p class="chip3d-fallback muted" hidden data-fallback>{t("chip3dNoWebGL")}</p>
+    <div class="chip3d-overlay" hidden data-ui>
+      <div class="chip3d-row">
+        <button type="button" data-preset="die">{t("chip3dPresetDie")}</button>
+        <button type="button" data-preset="macro">{t("chip3dPresetMacro")}</button>
+        <button type="button" data-preset="rows">{t("chip3dPresetRows")}</button>
+        <button type="button" data-preset="route">{t("chip3dPresetRoute")}</button>
+        <label class="chip3d-z"><input type="checkbox" data-z10 />{t("chip3dZoom10")}</label>
+      </div>
+      <div class="chip3d-row chip3d-layers" data-layers></div>
+      <p class="chip3d-readout mono" data-readout></p>
+    </div>
+  </div>
+  <button type="button" class="chip3d-load" data-load>
+    {t("chip3dLoad")} ({fmt(mb, 2)} MB)
+  </button>
+</div>
+)}
+<script>
+  const root = document.querySelector<HTMLElement>("[data-chip3d]");
+  if (root) {
+    const btn = root.querySelector<HTMLButtonElement>("[data-load]")!;
+    const stage = root.querySelector<HTMLElement>("[data-stage]")!;
+    const fallback = root.querySelector<HTMLElement>("[data-fallback]")!;
+    const ui = root.querySelector<HTMLElement>("[data-ui]")!;
+    const url = root.dataset.url!;
+    const L = JSON.parse(root.dataset.labels!);
+
+    const ok = () =>
+      typeof WebGLRenderingContext !== "undefined" &&
+      typeof DecompressionStream !== "undefined" &&
+      !!document.createElement("canvas").getContext("webgl2");
+
+    btn.addEventListener("click", async () => {
+      if (!ok()) {
+        fallback.hidden = false;
+        btn.disabled = true;
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = "…";
+      const { start } = await import("../lib/chip3dView");
+      try {
+        await start(stage, ui, url, L);
+        btn.remove();
+      } catch (e) {
+        console.error("chip3d", e);
+        fallback.hidden = false;
+      }
+    }, { once: true });
+  }
+</script>

@@ -1,0 +1,16 @@
+---
+title: "Diện tích và chi phí của logic sửa lỗi"
+kicker: "PPA"
+order: 12
+id: ppa
+---
+Diện tích cell chuẩn sau tổng hợp, trước khi đặt. Bộ nhớ chỉ có 8 kbit nên logic sửa lỗi lớn so với
+macro; phần lớn logic này không tăng theo kích thước bộ nhớ.
+
+<DataTable id="ppa-breakdown" />
+
+<DataTable id="ppa-sweep" />
+
+Nhiều phân vùng hơn làm logic nhỏ đi chứ không lớn lên. Bitmap lỗi chỉ phủ một phân vùng, nên giảm một nửa
+kích thước phân vùng thì khối lớn nhất cũng giảm một nửa, trong khi bảng lái cột chỉ tăng 12 flip-flop mỗi
+phân vùng. Cái giá của nhiều phân vùng là thời gian kiểm tra: mỗi phân vùng được chạy March riêng.

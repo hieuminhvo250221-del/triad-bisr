@@ -1,0 +1,16 @@
+---
+title: "Area and what the repair logic costs"
+kicker: "PPA"
+order: 12
+id: ppa
+---
+Standard-cell area after synthesis, before placement. The memory is only 8 kbit, so the repair logic is
+large next to the macro; most of it does not grow with memory size.
+
+<DataTable id="ppa-breakdown" />
+
+<DataTable id="ppa-sweep" />
+
+More partitions make the logic smaller, not larger. The fault bitmap covers one partition, so halving the
+partition size halves the largest block, while the steering table grows by only 12 flip-flops per
+partition. The price of more partitions is test time: every partition is marched separately.

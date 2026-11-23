@@ -1,0 +1,40 @@
+---
+import { t, type Lang } from "../i18n";
+
+interface Props {
+  lang: Lang;
+  links: { id: string; label: string; num: string }[];
+}
+const { lang, links } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const home = lang === "vi" ? `${base}/vi/` : `${base}/`;
+const other = lang === "vi" ? `${base}/` : `${base}/vi/`;
+---
+<header class="site-header">
+  <a class="skip" href="#main">{t("skipToContent")}</a>
+  <div class="header-inner">
+    <a class="brand" href={home} translate="no">TRIAD-BISR</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label={t("nav")}>{t("menuOpen")}</button>
+    <nav id="site-nav" class="site-nav" aria-label={t("nav")}>
+      {links.map((l) => <a href={`${home}#${l.id}`}><span class="navnum">{l.num}</span> {l.label}</a>)}
+    </nav>
+    <a class="langswitch" href={other} hreflang={lang === "vi" ? "en" : "vi"}>{t("langSwitch")}</a>
+  </div>
+</header>
+<script>
+  const btn = document.querySelector(".nav-toggle");
+  const nav = document.getElementById("site-nav");
+  if (btn && nav) {
+    btn.addEventListener("click", () => {
+      const open = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!open));
+      nav.classList.toggle("open", !open);
+    });
+  }
+  // carry the anchor across language switches
+  const sw = document.querySelector<HTMLAnchorElement>(".langswitch");
+  if (sw) {
+    const h = location.hash.replace(/\?.*$/, "");
+    if (h) sw.href = sw.href.split("#")[0] + h;
+  }
+</script>

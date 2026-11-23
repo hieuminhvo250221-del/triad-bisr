@@ -1,0 +1,19 @@
+---
+title: "So với autoMBIST"
+kicker: "MỐC SO SÁNH"
+order: 7
+id: automb
+---
+autoMBIST là dự án mã nguồn mở gần nhất: bộ sinh MBIST, BIRA và BISR cho macro OpenRAM trên sky130. Bộ
+giải 2D chính xác của nó chạy trên máy test; các bộ phân tích đặt trên chip là heuristic một lượt và hai
+lượt, được chính tác giả ghi rõ là xấp xỉ. Dự án kèm mô hình Python của các bộ phân tích đó, và mô hình
+này được chạy nguyên bản trên các bản đồ lỗi của mục trước.
+
+<DataTable id="automb" />
+
+Có hai cách hiểu ngân sách dự phòng của nó. Theo cách hiểu mức từ, một hàng dự phòng thay một từ và một
+cột dự phòng thay một làn bit, tức cùng tài nguyên với TRIAD khi không có ECC. Theo cách hiểu vật lý, vốn
+là cách của autoMBIST cho macro có column mux, một hàng dự phòng thay một hàng vật lý gồm hai từ. Bộ giải
+chính xác của nó và của chúng tôi cho cùng kết luận trên toàn bộ 800.000 bản đồ theo cách hiểu mức từ.
+Phần hơn đến từ hai thứ nó không có, ECC như một tài nguyên sửa và lái cột theo phân vùng, và cả hai đều
+tốn phần cứng: sáu bit kiểm tra mỗi từ và các bảng lái cột. Chưa có so sánh phần cứng trên cùng macro.

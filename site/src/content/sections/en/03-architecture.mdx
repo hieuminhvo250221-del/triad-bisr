@@ -1,0 +1,21 @@
+---
+title: "Architecture"
+kicker: "SYSTEM"
+order: 3
+id: architecture
+---
+The macro stores 32 bits per word. Bits 0 to 29 hold a Hsiao SEC-DED codeword (24 data bits and 6 check
+bits); bits 30 and 31 are the two spare columns. Spare words are flip-flop registers in the wrapper,
+selected by address comparison. Nothing inside the macro is changed.
+
+<ArchDiagram />
+
+A write encodes the data, copies the bits named by the steering table of the word's partition into the
+spare columns, and sends the 32 bits to the macro. A read undoes the steering, substitutes a spare word
+when the address matches, and decodes. The macro launches its output on the falling clock edge, so
+steering, spare-word selection and ECC decoding share the remaining half cycle before the output register.
+
+<DataTable id="modules" />
+
+Because sky130 has no eFuse, the repair is soft. A serial port shifts the repair state out after a test
+and back in after reset, so the test need not run again at every power-up.

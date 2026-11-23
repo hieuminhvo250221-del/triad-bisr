@@ -1,0 +1,21 @@
+---
+title: "Tỉ lệ sửa"
+kicker: "ĐÁNH GIÁ"
+order: 6
+id: evaluation
+---
+Mọi thuật toán nhận cùng 10.000 bản đồ lỗi ngẫu nhiên tại mỗi số khuyết tật từ 1 đến 30, trên mảng
+256 × 30 bit với hai cột dự phòng. Có bốn hỗn hợp khuyết tật. Ba hỗn hợp lấy theo các nghiên cứu phân tích
+sửa lỗi đã công bố, do một lượt tìm tài liệu thu thập và chưa đối chiếu với bài gốc; hỗn hợp thứ tư do
+chúng tôi tự đặt.
+
+<Chart id="repair-rate" />
+
+<DataTable id="n90" />
+
+Lái cột theo phân vùng có lợi nhất khi lỗi ô đơn lẻ và cụm nhỏ chiếm đa số, và không có lợi khi phần lớn
+khuyết tật là cả đường, lúc đó giới hạn là số từ dự phòng. Ngân sách ECC nâng mạnh khả năng chịu lỗi ô.
+Với K = 0 và không phân vùng, bộ phân bổ trùng với sửa 2D chính xác, đúng như lý thuyết. Trong thí nghiệm
+này tài nguyên dự phòng được coi là không lỗi.
+
+<LargeMemory />

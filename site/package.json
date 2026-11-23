@@ -1,0 +1,28 @@
+{
+  "name": "triad-bisr-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "data": "python ../tools/site_data.py",
+    "build": "npm run data && astro check && astro build",
+    "check": "astro check",
+    "preview": "astro preview",
+    "screens": "node scripts/screens.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "8.1.6",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/ibm-plex-sans": "5.3.0",
+    "@fontsource/source-serif-4": "5.3.1",
+    "astro": "7.4.12",
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@types/three": "^0.187.0",
+    "playwright": "1.65.1",
+    "typescript": "5.9.2"
+  }
+}

@@ -1,0 +1,23 @@
+---
+import { data } from "../lib/data";
+import { getLang } from "../i18n";
+
+const lang = getLang();
+const st = data.static;
+if (!st.available) throw new Error("static tables missing");
+const cmds = st.commands;
+const pick = (c: { en: string; vi: string }) => (lang === "vi" ? c.vi : c.en);
+---
+<div class="tablewrap" tabindex="0" role="region" aria-label="commands">
+  <table class="cmds">
+    <caption>{lang === "vi" ? "Các lệnh tái hiện và kiểm tra." : "Commands that reproduce the checks."}</caption>
+    <tbody>
+      {cmds.map((c: { en: string; vi: string; cmd: string }) => (
+        <tr>
+          <th scope="row">{pick(c)}</th>
+          <td><code class="cmd" translate="no">{c.cmd}</code></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

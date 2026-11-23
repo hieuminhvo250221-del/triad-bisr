@@ -1,0 +1,17 @@
+---
+title: "What is new and what is not"
+kicker: "CONTRIBUTION"
+order: 2
+id: contribution
+---
+Repairing a memory with spare rows and columns is old, and so is combining repair with ECC. This project
+does not claim either idea. The table separates what earlier work already provides from what is added here,
+based on the literature surveyed for the project; full texts of some papers were not available, so the
+right-hand column is a claim about what was found, not a proof of absence.
+
+<DataTable id="prior-art" />
+
+The claim is therefore the combination, implemented and measured: an on-chip allocator that is exact for
+its resource model, treats ECC as a budgeted third resource, steers spare columns per address partition
+from a small table in the wrapper, and is carried through an open RTL-to-GDS flow around a macro that has
+no spare cells of its own.

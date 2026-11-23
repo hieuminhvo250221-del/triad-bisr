@@ -1,0 +1,65 @@
+---
+import { data } from "../lib/data";
+import { t, fmt, dict } from "../i18n";
+
+interface LRow { mix: string; R: number; S: number; K: number; algo: string;
+                 n90: number | null; max_defects: number }
+interface PLarge { available: boolean; R?: number; trials?: number;
+                   algos?: string[]; rows?: LRow[] }
+const L = data.protocol_large as PLarge;
+const algoLabels: Record<string, string> = {
+  triad_p16: "TRIAD-P, 16 partitions",
+  triad_p64: "TRIAD-P, 64 partitions",
+  triad_rel: "TRIAD, no partitions (exact)",
+  ef_exact_bb: "ECC-first + buy-back",
+  exact_2d: "2-D exact, no ECC",
+};
+type Cell = { v: string; cls?: string };
+type Row = Cell[] | { head: string };
+let rows: Row[] = [];
+let algos: string[] = [];
+if (L.available && L.rows && L.algos) {
+  algos = L.algos.slice();
+  const sks = [...new Set(L.rows.map((r) => `${r.S}:${r.K}`))].sort();
+  const mixes = [...new Set(L.rows.map((r) => r.mix))];
+  for (const mix of mixes) {
+    for (const sk of sks) {
+      const [S, K] = sk.split(":");
+      rows.push({ head: `${mix} — S = ${S}, K = ${K}` });
+      const line: Cell[] = [{ v: "" }];
+      const sel = L.rows.filter((r) => r.mix === mix && `${r.S}:${r.K}` === sk);
+      for (const a of algos) {
+        const rr = sel.find((r) => r.algo === a);
+        line.push({ v: rr ? (rr.n90 == null ? `> ${rr.max_defects}` : fmt(rr.n90, 1)) : "—", cls: "numcol" });
+      }
+      rows.push(line);
+    }
+  }
+}
+---
+{!L.available ? (
+  <p class="muted">{t("largememPending")}</p>
+) : (
+  <div class="tablewrap" tabindex="0" role="region" aria-label="large memory">
+    <table>
+      <caption>
+        {dict().n90Caption} — 4096 × 39, R = {L.R}; {fmt(L.trials ?? 0)} trials per point
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{dict().n90Mix}</th>
+          {algos.map((al) => <th class="numcol" scope="col">{algoLabels[al] ?? al}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) =>
+          "head" in r ? (
+            <tr class="grouphead"><td colspan={algos.length + 1}>{r.head}</td></tr>
+          ) : (
+            <tr>{r.map((c) => <td class={c.cls}>{c.v}</td>)}</tr>
+          ),
+        )}
+      </tbody>
+    </table>
+  </div>
+)}

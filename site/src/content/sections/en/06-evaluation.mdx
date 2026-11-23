@@ -1,0 +1,21 @@
+---
+title: "Repair rate"
+kicker: "EVALUATION"
+order: 6
+id: evaluation
+---
+Every allocator receives the same 10,000 random fault maps at each defect count from 1 to 30, on the
+256 × 30-bit array with two spare columns. Four defect mixes are used. Three follow mixes reported in
+published repair-analysis studies, as collected by a literature search and not yet checked against the
+original papers; the fourth is our own.
+
+<Chart id="repair-rate" />
+
+<DataTable id="n90" />
+
+Partitioned steering helps most when isolated cells and small clusters dominate, and not at all when most
+defects are whole lines, where the number of spare words is the limit. An ECC budget raises the tolerance
+sharply for cell defects. With K = 0 and no partitions the allocator coincides with exact 2-D repair, as
+it must. The spares are assumed fault-free in this experiment.
+
+<LargeMemory />

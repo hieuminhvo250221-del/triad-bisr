@@ -1,0 +1,19 @@
+---
+title: "Against autoMBIST"
+kicker: "BASELINE"
+order: 7
+id: automb
+---
+autoMBIST is the closest open-source project: an MBIST, BIRA and BISR generator for OpenRAM macros on
+sky130. Its exact 2-D solver runs on the tester; the analyzers it puts on the chip are single-pass and
+two-pass heuristics, which its authors document as approximations. It ships a Python model of those
+analyzers, and that model is run here unchanged on the fault maps of the previous section.
+
+<DataTable id="automb" />
+
+Two readings of its spare budget are shown. In the word reading a spare row replaces one word and a spare
+column one bit lane, the same resources TRIAD has without ECC. In the physical reading, autoMBIST's native
+one for a column-muxed macro, a spare row replaces a physical row of two words. Its exact solver and ours
+agree on every one of the 800,000 maps in the word reading. The gain over it comes from the two things it
+does not have, ECC as a repair resource and per-partition steering, and both cost hardware: six check bits
+per word and the steering tables. A hardware comparison on the same macro has not been made.

@@ -1,0 +1,17 @@
+---
+title: "Verification"
+kicker: "VERIFICATION"
+order: 9
+id: verification
+---
+The RTL is checked against a Python model that follows the hardware algorithm step by step, including
+faulty spare columns. The model in turn is checked against exhaustive search. System tests inject
+stuck-at faults into a simulation model of the macro, run the self-repair, and compare the verdict, the
+number of ECC words, the spare words and the steering table with the model, then write and read every
+word through the user port.
+
+<DataTable id="gates" />
+
+Two entries are marked open on purpose. The formal proof of the steering datapath is bounded at 11
+cycles; deeper bounds did not finish. The gate-level simulation of the routed netlist is functional,
+without back-annotated delays.

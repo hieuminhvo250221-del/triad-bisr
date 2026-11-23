@@ -1,0 +1,103 @@
+# Hand-written tables (text only, no measured numbers). Each cell has an en and a vi string.
+prior-art:
+  caption:
+    en: "Prior work and what this project adds"
+    vi: "Công trình trước và phần đề tài bổ sung"
+  columns:
+    - {en: "Topic", vi: "Chủ đề"}
+    - {en: "Already published", vi: "Đã công bố"}
+    - {en: "Added here", vi: "Phần bổ sung"}
+  rows:
+    - - {en: "Repair analysis with spares and ECC", vi: "Phân tích sửa với dự phòng và ECC"}
+      - {en: "Optimal analysis on the tester for memories with in-memory ECC (Lv et al., IEEE TC 2021); ECC-aware pattern matching (Han et al., IEEE Access 2021)", vi: "Phân tích tối ưu trên máy test cho bộ nhớ có ECC bên trong (Lv và cộng sự, IEEE TC 2021); so khớp mẫu có xét ECC (Han và cộng sự, IEEE Access 2021)"}
+      - {en: "The same joint problem solved exactly on the chip, with a programmable cap K on ECC-reliant words", vi: "Cùng bài toán đồng thời, giải chính xác ngay trên chip, có trần K lập trình được cho số từ phụ thuộc ECC"}
+    - - {en: "On-chip repair that uses ECC", vi: "Sửa trên chip có dùng ECC"}
+      - {en: "ECC first, spares for what is left (EBISR, Lu et al., TVLSI 2016); BIRA with on-chip ECC (Sun et al., ISAS 2011)", vi: "ECC trước, dự phòng cho phần còn lại (EBISR, Lu và cộng sự, TVLSI 2016); BIRA với ECC trên chip (Sun và cộng sự, ISAS 2011)"}
+      - {en: "Spares and ECC allocated together, minimising the words that lose their soft-error protection", vi: "Phân bổ dự phòng và ECC cùng lúc, tối thiểu số từ mất khả năng chống lỗi mềm"}
+    - - {en: "Spare column steered per row partition", vi: "Cột dự phòng lái theo phân vùng hàng"}
+      - {en: "Inside the array, configured by fuses (Rab, Bawa and Touba, DFTS 2009)", vi: "Bên trong mảng nhớ, cấu hình bằng cầu chì (Rab, Bawa và Touba, DFTS 2009)"}
+      - {en: "A soft steering table in the wrapper of an unmodified macro, allocated jointly with spare words and the ECC budget", vi: "Bảng lái mềm ở lớp vỏ của macro nguyên bản, phân bổ chung với từ dự phòng và ngân sách ECC"}
+    - - {en: "Repair around a macro without spares", vi: "Sửa quanh macro không có dự phòng"}
+      - {en: "Commercial wrapper-level repair; autoMBIST (open source, 2-D, heuristic on chip, no ECC)", vi: "Sửa ở lớp vỏ trong công cụ thương mại; autoMBIST (mã nguồn mở, 2D, heuristic trên chip, không ECC)"}
+      - {en: "Not new as such; used here as the setting and as the open baseline", vi: "Không mới; ở đây là bối cảnh và là mốc so sánh mã nguồn mở"}
+    - - {en: "Theory of spare allocation", vi: "Lý thuyết phân bổ dự phòng"}
+      - {en: "NP-completeness (Kuo and Fuchs, 1987); exact algorithms and a tight kernel for constrained bipartite vertex cover (Fernau and Niedermeier, 2001; Jansen, 2016)", vi: "NP-đầy đủ (Kuo và Fuchs, 1987); thuật toán chính xác và nhân chặt cho phủ đỉnh hai phía có ràng buộc (Fernau và Niedermeier, 2001; Jansen, 2016)"}
+      - {en: "The same questions for the version with an ECC budget: hardness, must-repair rules, fault-store bound, polynomial case", vi: "Cùng các câu hỏi đó cho phiên bản có ngân sách ECC: độ khó, luật must-repair, chặn bộ lưu lỗi, trường hợp đa thức"}
+
+modules:
+  caption:
+    en: "Modules of triad_bisr_top"
+    vi: "Các module của triad_bisr_top"
+  columns:
+    - {en: "Module", vi: "Module"}
+    - {en: "Role", vi: "Vai trò"}
+  rows:
+    - - {en: "mbist_march", vi: "mbist_march"}
+      - {en: "March C- over an address range, six data backgrounds, on raw 32-bit words or through the repaired datapath", vi: "March C- trên một dải địa chỉ, sáu nền dữ liệu, trên từ thô 32 bit hoặc qua đường dữ liệu đã sửa"}
+    - - {en: "alloc_enum", vi: "alloc_enum"}
+      - {en: "Fault bitmap of one partition; tries every pair of steered columns and counts conflict and single-fault words", vi: "Bitmap lỗi của một phân vùng; thử mọi cặp cột được lái và đếm từ xung đột, từ một lỗi"}
+    - - {en: "alloc_dp", vi: "alloc_dp"}
+      - {en: "Dynamic programme that shares the spare words among partitions and checks the budget K", vi: "Quy hoạch động chia từ dự phòng cho các phân vùng và kiểm tra ngân sách K"}
+    - - {en: "bisr_ctrl", vi: "bisr_ctrl"}
+      - {en: "Three-pass sequencer: analyse, allocate, verify", vi: "Bộ điều khiển ba lượt: phân tích, cấp phát, kiểm tra"}
+    - - {en: "triad_datapath", vi: "triad_datapath"}
+      - {en: "ECC encoder and decoder, steering table, spare words, signature shift chain", vi: "Bộ mã hoá và giải mã ECC, bảng lái cột, từ dự phòng, chuỗi dịch chữ ký"}
+    - - {en: "ecc30_24_enc / dec", vi: "ecc30_24_enc / dec"}
+      - {en: "Hsiao SEC-DED code, 24 data bits in 30, generated from the Python model", vi: "Mã Hsiao SEC-DED, 24 bit dữ liệu trong 30 bit, sinh từ mô hình Python"}
+
+theorems:
+  caption:
+    en: "Results for the allocation problem with an ECC budget"
+    vi: "Các kết quả cho bài toán phân bổ có ngân sách ECC"
+  columns:
+    - {en: "Result", vi: "Kết quả"}
+    - {en: "Statement", vi: "Phát biểu"}
+    - {en: "Consequence for the hardware", vi: "Hệ quả cho phần cứng"}
+  rows:
+    - - {en: "Hardness", vi: "Độ khó"}
+      - {en: "NP-complete for every fixed K, for unlimited K, and for unlimited K without spare words", vi: "NP-đầy đủ với mọi K cố định, với K không giới hạn, và với K không giới hạn khi không có từ dự phòng"}
+      - {en: "ECC does not make allocation easy", vi: "ECC không làm bài toán phân bổ dễ đi"}
+    - - {en: "Must-repair", vi: "Must-repair"}
+      - {en: "A column with more than R + K faulty words must be replaced; a word with more than S + 1 faulty bits must be replaced (S when K = 0)", vi: "Cột có hơn R + K từ lỗi phải được thay; từ có hơn S + 1 bit lỗi phải được thay (S khi K = 0)"}
+      - {en: "Early decisions without search", vi: "Quyết định sớm, không cần tìm kiếm"}
+    - - {en: "Fault-store bound", vi: "Chặn bộ lưu lỗi"}
+      - {en: "After must-repair a repairable memory has at most R + S(R + K) + K faulty words, and the bound is attained", vi: "Sau must-repair, bộ nhớ sửa được có nhiều nhất R + S(R + K) + K từ lỗi, và chặn này đạt được"}
+      - {en: "A store of that size overflows only on unrepairable memories", vi: "Bộ lưu có kích thước đó chỉ tràn khi bộ nhớ không sửa được"}
+    - - {en: "Exact search", vi: "Tìm kiếm chính xác"}
+      - {en: "Three-way branching on a conflict word, then a greedy buy-back, is optimal within 3^(R+S) leaves", vi: "Rẽ ba nhánh trên một từ xung đột, sau đó mua lại tham lam, là tối ưu trong 3^(R+S) lá"}
+      - {en: "Used by the reference model", vi: "Dùng trong mô hình tham chiếu"}
+    - - {en: "Fixed number of spare columns", vi: "Số cột dự phòng cố định"}
+      - {en: "Solvable by trying every column set: 466 sets for 30 bits and two columns", vi: "Giải được bằng cách thử mọi tập cột: 466 tập với 30 bit và hai cột"}
+      - {en: "The on-chip allocator needs no stack and no search", vi: "Bộ phân bổ trên chip không cần ngăn xếp, không cần tìm kiếm"}
+    - - {en: "Partitions", vi: "Phân vùng"}
+      - {en: "Partitions interact only through the spare words and the budget, so a dynamic programme over partitions is exact", vi: "Các phân vùng chỉ ràng buộc nhau qua từ dự phòng và ngân sách, nên quy hoạch động theo phân vùng là chính xác"}
+      - {en: "One partition is analysed at a time", vi: "Mỗi lần chỉ phân tích một phân vùng"}
+    - - {en: "Greedy is not exact", vi: "Tham lam không chính xác"}
+      - {en: "Smallest counterexample: no spare word, one spare column, K = 2, three words with faulty bits (0), (2) and (1, 2)", vi: "Phản ví dụ nhỏ nhất: không có từ dự phòng, một cột dự phòng, K = 2, ba từ có bit lỗi (0), (2) và (1, 2)"}
+      - {en: "In Monte Carlo the loss of the greedy allocator stayed below half a percentage point of yield", vi: "Trong Monte Carlo, mức thua của bộ tham lam dưới nửa điểm phần trăm yield"}
+
+commands:
+  - cmd: "pytest -q model"
+    en: "Golden model and theory checks"
+    vi: "Mô hình vàng và các kiểm tra lý thuyết"
+  - cmd: "bash tb/regress.sh"
+    en: "RTL against the model (cocotb, Icarus)"
+    vi: "RTL so với mô hình (cocotb, Icarus)"
+  - cmd: "bash tb/mutation_check.sh"
+    en: "Do the tests catch injected bugs?"
+    vi: "Test có bắt được lỗi cố ý chèn vào không?"
+  - cmd: "bash formal/run.sh"
+    en: "SymbiYosys proofs"
+    vi: "Chứng minh bằng SymbiYosys"
+  - cmd: "python -m triad.mc --preset protocol --trials 10000 --out build/proto/protocol.csv"
+    en: "Monte Carlo evaluation"
+    vi: "Đánh giá Monte Carlo"
+  - cmd: "bash flow/openlane/run.sh try15 && bash flow/openlane/drc_blackbox.sh try15"
+    en: "RTL to GDS and the GDS design-rule check"
+    vi: "RTL tới GDS và kiểm tra luật thiết kế trên GDS"
+  - cmd: "bash tb/gls.sh try15"
+    en: "Gate-level simulation of the routed netlist"
+    vi: "Mô phỏng mức cổng của netlist sau định tuyến"
+  - cmd: "cd site && npm ci && npm run build"
+    en: "This page"
+    vi: "Trang web này"

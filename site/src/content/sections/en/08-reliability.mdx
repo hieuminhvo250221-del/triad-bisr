@@ -1,0 +1,19 @@
+---
+title: "What ECC repair costs in reliability"
+kicker: "RELIABILITY"
+order: 8
+id: reliability
+---
+A word that relies on ECC for a hard fault has nothing left for a soft error: one upset in its other 29
+bits becomes an uncorrectable, detected error. The model counts single-bit upsets only and assumes
+1000 FIT per megabit, because no soft-error measurement exists for this macro; the result scales with
+that assumption.
+
+<DataTable id="fit-constants" />
+
+<DataTable id="fit" />
+
+The cost is linear in the number of ECC-reliant words, so the budget K is a hard ceiling on it. On the
+same dies, the joint allocator uses far fewer ECC words than an ECC-first scheme at low defect counts, and
+partitioned steering lowers the number further. The ECC-first baselines follow the published description
+of EBISR in outline; they were not checked against the full paper.
