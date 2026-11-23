@@ -6,7 +6,7 @@ first.  Update `docs/STATUS.md` after every milestone.
 ## Where things run
 
 - The repo lives on Windows: `D:\MBIST-BISR-BIRA SRAM ASIC PROJECT` (path has spaces, slow `/mnt/d`).
-  **Never run EDA tools there.**  Edit files here; this is the git repository (local only, never push).
+  **Never run EDA tools there.**  Edit files here; this is the git repository (remote: github.com/hieuminhvo250221-del/triad-bisr, public).
 - All tools run in WSL (`Ubuntu-22.04`, user `hieu`) on a mirror: `~/work/triad_bisr`.
   Generated files go to `~/work/triad_bisr/build/` (never synced back automatically).
   Curated artifacts for the repo: put them in `build/export/`, then run `tools/sync_results.sh`
