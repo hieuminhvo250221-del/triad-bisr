@@ -1,0 +1,5 @@
+assumptions: 1000 FIT/Mbit, lifetime 8760 h, activation 0.5
+triple-error outcomes of the (30,24) decoder: {'sdc': 0.9310344827586207, 'due': 0.06896551724137931, 'benign': 0.0}
+256x30 memory, no consumed word: DUE 9.755e-07 FIT, SDC 0.000e+00 FIT
+each consumed word adds: DUE 0.01450 FIT, SDC 1.656e-09 FIT
+256x24 memory without ECC: SDC 6.144 FIT
