@@ -1,0 +1,13 @@
+# Hand-maintained record of the last full regression (update after every run of the gates below).
+commit: fe7bf79
+rtl_config_for_layout: {pbits: 4, r: 2, nbg: 6}
+gates:
+  - {id: model_tests, name: "Python golden-model and theory tests", command: "pytest -q model", result: "92 passed", status: ok}
+  - {id: datapath, name: "Datapath unit tests (cocotb + Icarus)", command: "bash tb/regress.sh", result: "5 of 5", status: ok}
+  - {id: system, name: "System tests against the golden model, three parameter sets", command: "bash tb/regress.sh", result: "7 of 7 in each of 3 configurations", status: ok}
+  - {id: mutation, name: "Mutation check: injected RTL bugs detected", command: "bash tb/mutation_check.sh", result: "13 of 13", status: ok}
+  - {id: lint, name: "Verilator lint, -Wall", command: "verilator --lint-only -Wall", result: "0 warnings", status: ok}
+  - {id: formal_ecc, name: "Formal: SEC-DED code corrects 1, detects 2 errors", command: "bash formal/run.sh", result: "proved by k-induction", status: ok}
+  - {id: formal_steer, name: "Formal: steered columns never reach the output", command: "bash formal/run.sh", result: "bounded proof, depth 11", status: warn}
+  - {id: gls, name: "Post-route gate-level simulation (functional, no SDF)", command: "bash tb/gls.sh try15", result: "8 of 8 cases match the model", status: warn}
+system_configs: ["PBITS=4 R=2", "PBITS=2 R=1", "PBITS=3 R=4"]
