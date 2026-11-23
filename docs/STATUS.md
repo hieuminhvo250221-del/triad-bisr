@@ -3,6 +3,25 @@
 Cập nhật file này sau mỗi mốc. Mục mới nhất ở trên cùng.
 
 
+
+## Baseline, độ tin cậy, paper, website
+
+- Kho mã công khai: github.com/hieuminhvo250221-del/triad-bisr. Website (Astro, Anh/Việt, GitHub Pages):
+  hieuminhvo250221-del.github.io/triad-bisr. Mọi con số trên web sinh từ `results/` qua `tools/site_data.py`;
+  cách cập nhật: `site/README.md`.
+- FIT: `docs/07_reliability.md`. Mỗi từ phụ thuộc ECC thêm 0,0145 FIT DUE (giả định 1000 FIT/Mbit).
+- autoMBIST (commit 032deb05): bộ phân tích trên chip của nó là heuristic; chạy mô hình Python của họ
+  trên cùng bản đồ lỗi (`model/analysis/automb_compare.py`, `results/automb/`). Bộ giải chính xác của họ
+  và của ta trùng nhau trên 800 000 bản đồ. Chưa so phần cứng trên cùng macro.
+- EBISR: người dùng chấp nhận baseline dựng theo mô tả tóm tắt; paper và web ghi rõ điều này.
+- Quét tổng hợp PBITS x R: `results/ppa/synth_sweep.csv`. Nhiều phân vùng hơn thì logic nhỏ hơn.
+- Bộ nhớ 4096x39: 10 000 mẫu mỗi điểm cần khoảng 17 giờ mỗi hỗn hợp, nên chạy 1 000 mẫu (`results/protocol_large/`).
+- Paper IEEE: `paper/triad.tex` (tên tác giả còn để trống). Slide: `slides/`.
+
+### Việc còn lại
+Điền tên tác giả; rà soát chứng minh; đối chiếu các hỗn hợp lỗi với bài gốc; so phần cứng với autoMBIST;
+đóng slew/antenna nếu đổi luồng (OpenLane 2 / LibreLane).
+
 ## Signoff vật lý, cổng chữ ký sửa, kiểm chứng mở rộng (try15)
 
 - RTL: thêm cổng nối tiếp xuất/nhập chữ ký sửa (`sig_shift/sig_in/sig_out`), `spare_count` thành tổ hợp.
